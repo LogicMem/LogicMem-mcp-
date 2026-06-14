@@ -42,15 +42,10 @@ and get:
 ## Install
 
 ```bash
-pip install logicmem
+pip install git+https://github.com/LogicMem/LogicMem-mcp-.git
 ```
 
-Or with optional dependencies:
-
-```bash
-pip install "logicmem[pydantic]"   # Pydantic models for validation
-pip install "logicmem[dev]"         # Development tools (pytest, ruff, etc.)
-```
+> 📦 **PyPI release coming soon.** For now, install directly from GitHub.
 
 ---
 
