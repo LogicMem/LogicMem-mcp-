@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "logicmem"
+version = "0.1.0"
+description = "AI agent memory infrastructure — persistent memory, A2A sharing, reasoning engine"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "LogicFrame LLC", email = "edcreed@logicframe.io"},
+]
+keywords = ["ai", "memory", "mcp", "agent", "llm", "vector-search", "a2a"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "mypy>=1.0",
+    "ruff>=0.1.0",
+    "httpx>=0.25.0",
+]
+pydantic = [
+    "pydantic>=2.0",
+]
+
+[project.urls]
+Homepage = "https://logicmem.io"
+Documentation = "https://docs.logicmem.io"
+Repository = "https://github.com/CreedLab/logicmem-mcp"
+Changelog = "https://github.com/CreedLab/logicmem-mcp/releases"
+"Bug Tracker" = "https://github.com/CreedLab/logicmem-mcp/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+logicmem = ["py.typed"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_ignores = true
