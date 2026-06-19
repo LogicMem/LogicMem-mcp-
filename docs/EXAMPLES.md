@@ -88,7 +88,7 @@ for t in tasks:
 # Use a specific API key for a tenant
 memory = LogicMem(
     api_key="tenant-specific-key",
-    base_url="http://5.78.202.35:8421",
+    base_url="https://api.your-memory-server.com",
 )
 
 result = memory.log(

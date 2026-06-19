@@ -11,8 +11,14 @@
 ## Step 1 — Install
 
 ```bash
-pip install logicmem
+# macOS: add --break-system-packages (Homebrew Python requires it)
+pip install --break-system-packages git+https://github.com/LogicMem/LogicMem-mcp-.git
+
+# Linux/Ubuntu (no flag needed):
+pip install git+https://github.com/LogicMem/LogicMem-mcp-.git
 ```
+
+> ⚠️ **PyPI install coming soon.** Currently installable only from GitHub. PyPI release is in progress.
 
 ## Step 2 — Set Your API Key
 

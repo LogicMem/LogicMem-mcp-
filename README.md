@@ -200,7 +200,7 @@ print(f"Correction pairs ready: {stats['ready_count']}")
                              ▼
 ┌──────────────────────────────────────────────────────────────┐
 │                   LogicMem MCP Server                        │
-│                 api.logicmem.io                              │
+│                 mcp.logicmem.io                              │
 │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────┐ │
 │  │   Memory    │ │  Reasoning │ │    A2A     │ │ Audit  │ │
 │  │   Tools     │ │   Engine   │ │   Relay    │ │ Chain  │ │
@@ -222,7 +222,7 @@ print(f"Correction pairs ready: {stats['ready_count']}")
 
 The server accepts JSON-RPC 2.0 requests over HTTPS.
 
-**Base URL:** `https://api.logicmem.io`
+**Base URL:** `https://mcp.logicmem.io`
 
 **Authentication:** `Authorization: Bearer <api_key>` header.
 
