@@ -122,6 +122,6 @@ Add LogicMem to your MCP client config (Claude Desktop, Cursor, Windsurf, etc.):
 ## What's Next?
 
 - **[MCP-PROTOCOL.md](MCP-PROTOCOL.md)** — Full protocol reference for MCP clients
-- **[A2A.md](A2A.md)** — Agent-to-agent memory sharing guide
+- **[A2A-PROTOCOL.md](A2A-PROTOCOL.md)** — Agent-to-agent memory sharing guide
 - **[EXAMPLES.md](EXAMPLES.md)** — All examples (voice, multi-agent, audit, etc.)
 - **[SECURITY.md](SECURITY.md)** — Security model and best practices
