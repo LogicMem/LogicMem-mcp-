@@ -389,7 +389,7 @@ def send_response(resp: dict):
     sys.stdout.flush()
 
 
-def main():
+def _main():
     # Send initial server capabilities
     sys.stderr.write(
         "[logicmem] MCP server starting — "
@@ -423,6 +423,10 @@ def main():
                 "id": req_id,
                 "error": {"code": -32601, "message": f"Unknown method: {method}"},
             })
+
+
+def main():
+    _main()
 
 
 if __name__ == "__main__":

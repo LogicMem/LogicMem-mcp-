@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logicmem"
-version = "0.1.0"
+version = "0.1.1"
 description = "AI agent memory infrastructure — persistent memory, A2A sharing, reasoning engine"
 readme = "README.md"
 license = {text = "MIT"}
@@ -41,10 +41,6 @@ pydantic = [
 cli = [
     "httpx>=0.25.0",
 ]
-
-[project.scripts]
-logicmem-server = "logicmem.server:main"
-
 [project.urls]
 Homepage = "https://logicmem.io"
 Documentation = "https://docs.logicmem.io"
@@ -54,6 +50,10 @@ Changelog = "https://github.com/LogicMem/LogicMem-mcp-/releases"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+
+[project.entry-points."console_scripts"]
+logicmem-server = "logicmem.cli:main"
 
 [tool.setuptools.package-data]
 logicmem = ["py.typed"]
