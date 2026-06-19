@@ -42,9 +42,9 @@ pydantic = [
 [project.urls]
 Homepage = "https://logicmem.io"
 Documentation = "https://docs.logicmem.io"
-Repository = "https://github.com/CreedLab/logicmem-mcp"
-Changelog = "https://github.com/CreedLab/logicmem-mcp/releases"
-"Bug Tracker" = "https://github.com/CreedLab/logicmem-mcp/issues"
+Repository = "https://github.com/LogicMem/LogicMem-mcp-"
+Changelog = "https://github.com/LogicMem/LogicMem-mcp-/releases"
+"Bug Tracker" = "https://github.com/LogicMem/LogicMem-mcp-/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
