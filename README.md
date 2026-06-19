@@ -60,11 +60,14 @@ This repo is the **LogicMem SDK** — the open-source client for connecting AI a
 ## Install
 
 ```bash
-# macOS: add --break-system-packages (Homebrew Python requires it)
+# Install the Python SDK (library only)
 pip install --break-system-packages git+https://github.com/LogicMem/LogicMem-mcp-.git
 
+# Install with CLI tools (includes logicmem-server for OpenClaw MCP):
+pip install --break-system-packages "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
+
 # Linux/Ubuntu (no flag needed):
-pip install git+https://github.com/LogicMem/LogicMem-mcp-.git
+pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 ```
 
 ---
@@ -215,6 +218,100 @@ print(f"Correction pairs ready: {stats['ready_count']}")
     │(Supabase)  │   │ (Qdrant)   │   │(Hash Chain)│
     └────────────┘   └────────────┘   └────────────┘
 ```
+
+---
+
+## OpenClaw Integration
+
+> **OpenClaw** is the fastest-growing open-source AI agent framework (300K+ GitHub stars).
+> LogicMem is fully compatible with OpenClaw.
+
+### Option A — Direct MCP Server URL (Simplest, 1 line of config)
+
+Add LogicMem as a **streamable-http** MCP server in your OpenClaw config (`~/.openclaw/openclaw.json`):
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "logicmem": {
+        "transport": "streamable-http",
+        "url": "https://mcp.logicmem.io/mcp",
+        "headers": {
+          "Authorization": "Bearer lm_YOUR_API_KEY"
+        }
+      }
+    }
+  }
+}
+```
+
+> **Note:** The `streamable-http` transport is the modern MCP standard (2024-11-05).
+> The server at `mcp.logicmem.io` supports both `streamable-http` and legacy `sse`.
+
+### Option B — Local stdio Server (For power users with multiple MCP servers)
+
+Some OpenClaw users have **multiple MCP servers** configured — a mix of stdio (local programs) and HTTP/SSE (remote servers). OpenClaw has a known limitation where it can't freely mix stdio and SSE servers in the same config.
+
+**The fix:** Use our local stdio server as a bridge. Install it via pip:
+
+```bash
+pip install --break-system-packages \
+  "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
+```
+
+Then configure OpenClaw to use the local stdio command:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "logicmem": {
+        "command": "logicmem-server",
+        "env": {
+          "LOGICMEM_API_KEY": "lm_YOUR_API_KEY",
+          "LOGICMEM_CLIENT_ID": "your-client-id"
+        }
+      }
+    }
+  }
+}
+```
+
+This approach:
+- Works alongside **any** other MCP server (stdio or HTTP)
+- No SSE/stdio mixing conflict
+- Installs in seconds via pip
+
+### Quick Test — Verify Your Setup
+
+After configuring, test that LogicMem is connected:
+
+```bash
+# Check if the MCP server is recognized
+openclaw mcp list
+
+# Or test directly in a conversation with your agent:
+# "What is my name?" (should recall from memory if previously stored)
+```
+
+### For Specific OpenClaw Agents
+
+| Agent | Recommended Setup | Config Type |
+|-------|-----------------|-------------|
+| **Themis** (any OpenClaw agent) | Direct URL | `streamable-http` config |
+| **Hermes** | Direct URL or stdio pip | Same as above |
+| **Claude Code** | Direct URL | `streamable-http` in Claude Code config |
+| **Custom OpenClaw agents** | Direct URL | Same as above |
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LOGICMEM_API_KEY` | — | Your API key (`lm_xxx`) from logicmem.io/settings |
+| `LOGICMEM_SERVER_URL` | `https://api.logicmem.io` | Point to self-hosted server if using logicmem-open |
+| `LOGICMEM_CLIENT_ID` | `default` | Default client_id for memory operations |
+| `LOGICMEM_TIMEOUT` | `30` | HTTP request timeout in seconds |
 
 ---
 

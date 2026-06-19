@@ -38,6 +38,12 @@ dev = [
 pydantic = [
     "pydantic>=2.0",
 ]
+cli = [
+    "httpx>=0.25.0",
+]
+
+[project.scripts]
+logicmem-server = "logicmem.server:main"
 
 [project.urls]
 Homepage = "https://logicmem.io"
