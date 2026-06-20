@@ -2,6 +2,17 @@
 
 > **Complete reference for the LogicMem Model Context Protocol server.**
 
+## Important — Two Interfaces
+
+This SDK serves **two different MCP interfaces** with different tool names:
+
+| Interface | URL | Tool Prefix | Auth |
+|-----------|-----|-------------|------|
+| **Hosted MCP Server** (recommended) | `https://mcp.logicmem.io/mcp` | `logicframe_*` | Required for writes |
+| **Local stdio bridge** (pip package) | `logicmem-server` command | `logicmem_*` | Via env vars |
+
+This document describes the **hosted MCP server** at `mcp.logicmem.io` with `logicframe_*` tool names.
+
 ## Overview
 
 The LogicMem MCP server implements the [Model Context Protocol](https://modelcontextprotocol.io)
@@ -10,7 +21,7 @@ persistent memory, reasoning, and audit capabilities.
 
 **Protocol version:** JSON-RPC 2.0 over HTTPS POST
 **Authentication:** `Authorization: Bearer <api_key>` header
-**Base URL:** `https://mcp.logicmem.io`
+**MCP Endpoint:** `https://mcp.logicmem.io/mcp`
 
 ---
 
@@ -87,7 +98,7 @@ All requests follow the standard JSON-RPC 2.0 format:
 
 ## Tool Reference
 
-### `logicmem_memory_log`
+### `logicframe_memory_log`
 
 Store a new memory entry.
 
@@ -110,7 +121,7 @@ Store a new memory entry.
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "logicmem_memory_log",
+    "name": "logicframe_memory_log",
     "arguments": {
       "text": "Ed prefers Telegram for urgent messages. Email only for formal.",
       "category": "preference",
@@ -136,7 +147,7 @@ Store a new memory entry.
 
 ---
 
-### `logicmem_memory_recall`
+### `logicframe_memory_recall`
 
 Search for relevant memories using natural language.
 
@@ -156,7 +167,7 @@ Search for relevant memories using natural language.
   "id": 2,
   "method": "tools/call",
   "params": {
-    "name": "logicmem_memory_recall",
+    "name": "logicframe_memory_recall",
     "arguments": {
       "query": "Ed communication preferences",
       "limit": 5
@@ -189,7 +200,7 @@ Search for relevant memories using natural language.
 
 ---
 
-### `logicmem_memory_session`
+### `logicframe_memory_session`
 
 Get a full context briefing for the current session.
 
@@ -220,7 +231,7 @@ Get a full context briefing for the current session.
 
 ---
 
-### `logicmem_reason`
+### `logicframe_reason`
 
 Multi-step reasoning that consults memory at each step.
 
@@ -256,7 +267,7 @@ Multi-step reasoning that consults memory at each step.
 
 ---
 
-### `logicmem_verify`
+### `logicframe_verify`
 
 Verify a claim against stored facts.
 
@@ -288,7 +299,7 @@ Verify a claim against stored facts.
 
 ---
 
-### `logicmem_reflect`
+### `logicframe_reflect`
 
 Self-critique: evaluate a draft answer against memory.
 
@@ -323,7 +334,7 @@ Self-critique: evaluate a draft answer against memory.
 
 ---
 
-### `logicmem_audit_verify`
+### `logicframe_audit_verify`
 
 Verify the integrity of the audit chain.
 
@@ -344,7 +355,7 @@ Verify the integrity of the audit chain.
 
 ---
 
-### `logicmem_a2a_share`
+### `logicframe_a2a_share`
 
 Share a memory entry with another agent in real-time.
 

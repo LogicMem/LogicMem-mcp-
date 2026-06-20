@@ -203,7 +203,7 @@ print(f"Correction pairs ready: {stats['ready_count']}")
                              ▼
 ┌──────────────────────────────────────────────────────────────┐
 │                   LogicMem MCP Server                        │
-│                 mcp.logicmem.io                              │
+│               mcp.logicmem.io                              │
 │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────┐ │
 │  │   Memory    │ │  Reasoning │ │    A2A     │ │ Audit  │ │
 │  │   Tools     │ │   Engine   │ │   Relay    │ │ Chain  │ │
@@ -319,23 +319,30 @@ openclaw mcp list
 
 The server accepts JSON-RPC 2.0 requests over HTTPS.
 
-**Base URL:** `https://mcp.logicmem.io`
+**MCP Endpoint:** `https://mcp.logicmem.io/mcp`
+**REST API Base URL:** `https://api.logicmem.io`
 
-**Authentication:** `Authorization: Bearer <api_key>` header.
+**Authentication:** `Authorization: Bearer <api_key>` header required for write operations.
 
-### Core Tools
+> ⚠️ **Tool name prefix:** The MCP server at `mcp.logicmem.io` serves `logicframe_*` tool names
+> (e.g. `logicframe_memory_log`, `logicframe_memory_recall`). The local pip package
+> (`logicmem[cli]`) serves `logicmem_*` tool names. Both connect to the same backend.
+
+### Core Tools (via MCP server at mcp.logicmem.io)
 
 | Tool | Description |
 |------|-------------|
-| `logicmem_memory_log` | Store a new memory with category, importance, tags |
-| `logicmem_memory_recall` | Search memories with natural language |
-| `logicmem_memory_session` | Get full context briefing for current session |
-| `logicmem_reason` | Multi-step reasoning with memory consultation |
-| `logicmem_verify` | Verify a claim against stored facts |
-| `logicmem_reflect` | Self-critique — evaluate draft against memory |
-| `logicmem_audit_verify` | Verify integrity of the audit chain |
-| `logicmem_a2a_share` | Share memory with another agent |
-| `logicmem_a2a_receive` | Receive shared memory from another agent |
+| `logicframe_memory_log` | Store a new memory with category, importance, tags |
+| `logicframe_memory_recall` | Search memories with natural language |
+| `logicframe_memory_context` | Get full context about a client, project, or situation |
+| `logicframe_reason` | Multi-step reasoning with memory consultation |
+| `logicframe_verify` | Verify a claim against stored facts |
+| `logicframe_reflect` | Self-critique — evaluate draft against memory |
+| `logicframe_audit_verify` | Verify integrity of the audit chain |
+| `logicframe_intelligence` | Proactive intelligence — detect patterns and overdue items |
+| `logicframe_correction_log` | Log corrections — feeds DPO training pipeline |
+| `logicframe_conversations_store` | Store conversation state for auto-resume |
+| `logicframe_conversations_resume` | Retrieve stored conversation for continuity |
 
 See [MCP-PROTOCOL.md](MCP-PROTOCOL.md) for the full protocol reference.
 
