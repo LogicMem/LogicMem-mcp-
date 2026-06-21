@@ -29,7 +29,7 @@ memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 
 # Store a user preference
 memory.log(
-    text="Ed prefers urgent messages via Telegram, not email.",
+    text="The user prefers urgent messages via Telegram, not email.",
     category="preference",
     importance=8,
     client_id="ed_creed",
@@ -37,7 +37,7 @@ memory.log(
 
 # Store another preference
 memory.log(
-    text="Ed is a solo founder. Keep suggestions practical and limited to 2-3 action items.",
+    text="The user is a solo founder. Keep suggestions practical and limited to 2-3 action items.",
     category="preference",
     importance=9,
     client_id="ed_creed",
@@ -45,7 +45,7 @@ memory.log(
 
 # Search for all preferences
 prefs = memory.recall(
-    query="Ed communication and work preferences",
+    query="the user's communication and work preferences",
     limit=10,
     client_id="ed_creed",
 )
@@ -63,7 +63,7 @@ result = memory.log(
          "Priority order: (1) cost breakdown, "
          "(2) timeline, "
          "(3) technical architecture. "
-         "Ed needs to present to investors on Saturday.",
+         "The user needs to present to investors on Saturday.",
     category="task",
     importance=9,
     tags=["q3", "proposal", "urgent"],
@@ -110,7 +110,7 @@ memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 # Ask a complex question that requires reasoning
 answer = memory.reason(
     question="Should we prioritize the mobile app or web dashboard first?",
-    context="Ed is a solo founder with limited engineering bandwidth. "
+    context="The user is a solo founder with limited engineering bandwidth. "
             "Current runway is 6 months. Monthly burn is $12k.",
     mode="deep",  # fast / deep / exhaustive
 )
@@ -129,7 +129,7 @@ for step in answer.get("steps", []):
 ```python
 # Before making a claim, verify it against memory
 verdict = memory.verify(
-    claim="Ed prefers email for urgent messages."
+    claim="The user prefers email for urgent messages."
 )
 
 print(f"Verdict: {verdict['verdict']}")  # supported / contradicted / inconclusive
@@ -147,7 +147,7 @@ draft = "You should build the mobile app first because it's a growing market."
 review = memory.reflect(
     draft_answer=draft,
     question="What should we prioritize first — mobile or web?",
-    memory_query="Ed solo founder constraints",
+    memory_query="the user solo founder constraints",
 )
 
 print(f"Reflection score: {review['score']}/100")
@@ -166,8 +166,8 @@ memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 reasoner = ReasoningEngine(memory)
 
 score = reasoner.confidence(
-    question="What is Ed's preferred communication channel?",
-    answer="Telegram, because Ed prefers urgent messages via Telegram.",
+    question="What is the user'''s preferred communication channel?",
+    answer="Telegram, because the user prefers urgent messages via Telegram.",
 )
 
 print(f"Confidence score: {score['score']}/100")
@@ -285,11 +285,11 @@ def weekly_audit():
 ```python
 # After a VAPI voice call ends, store the transcript summary
 memory.log(
-    text="Voice call with Ed (VAPI call_id: vc_abc123). "
+    text="Voice call with the user (VAPI call_id: vc_abc123). "
          "Topic: Q3 proposal review. "
-         "Ed confirmed Friday deadline. "
-         "Ed wants cost breakdown before anything else. "
-         "Ed sounded positive about the project direction.",
+         "The user confirmed Friday deadline. "
+         "The user wants cost breakdown before anything else. "
+         "The user sounded positive about the project direction.",
     category="voice_call",
     importance=8,
     source="voice_call",
@@ -299,7 +299,7 @@ memory.log(
 
 # Retrieve recent call history
 calls = memory.recall(
-    query="Ed voice calls about Q3 proposal",
+    query="the user's voice calls about Q3 proposal",
     limit=5,
     client_id="ed_creed",
 )

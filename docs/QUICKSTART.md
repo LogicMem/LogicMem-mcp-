@@ -45,7 +45,7 @@ memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 
 # ── Store a preference ──────────────────────────────────────
 memory.log(
-    text="Ed prefers urgent messages via Telegram, not email.",
+    text="The user prefers urgent messages via Telegram, not email.",
     category="preference",
     importance=8,
 )
@@ -79,7 +79,7 @@ print(f"  Active constraints: {brief.get('active_constraints', [])}")
 # ── Reasoning ───────────────────────────────────────────────
 answer = memory.reason(
     question="Should we prioritize mobile or web dashboard first?",
-    context="Ed is a solo founder with limited engineering bandwidth.",
+    context="The user is a solo founder with limited engineering bandwidth.",
     mode="fast",  # fast / deep / exhaustive
 )
 print(f"\n🧠 Reasoning result (confidence: {answer.get('confidence', '?')})")
@@ -99,7 +99,7 @@ Expected output:
 ✅ Task stored
 
 🔍 Found 1 memories:
-  [preference] Ed prefers urgent messages via Telegram, not email.
+  [preference] The user prefers urgent messages via Telegram, not email.
 
 📋 Session briefing:
   Confidence: 87

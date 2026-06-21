@@ -123,7 +123,7 @@ Store a new memory entry.
   "params": {
     "name": "logicframe_memory_log",
     "arguments": {
-      "text": "Ed prefers Telegram for urgent messages. Email only for formal.",
+      "text": "The user prefers Telegram for urgent messages. Email only for formal.",
       "category": "preference",
       "importance": 8,
       "client_id": "ed_creed"
@@ -169,7 +169,7 @@ Search for relevant memories using natural language.
   "params": {
     "name": "logicframe_memory_recall",
     "arguments": {
-      "query": "Ed communication preferences",
+      "query": "the user's communication preferences",
       "limit": 5
     }
   }
@@ -186,7 +186,7 @@ Search for relevant memories using natural language.
     "entries": [
       {
         "entry_id": "mem_a1b2c3d4",
-        "text": "Ed prefers Telegram for urgent messages...",
+        "text": "The user prefers Telegram for urgent messages...",
         "category": "preference",
         "importance": 8,
         "score": 0.94,
@@ -255,7 +255,7 @@ Multi-step reasoning that consults memory at each step.
     "steps": [
       {
         "step": 1,
-        "thought": "Ed is a solo founder with limited bandwidth...",
+        "thought": "The user is a solo founder with limited bandwidth...",
         "memory_consulted": "limited engineering bandwidth",
         "confidence": 0.82
       }
@@ -288,7 +288,7 @@ Verify a claim against stored facts.
     "evidence": [
       {
         "entry_id": "mem_xyz789",
-        "text": "Ed prefers Telegram for urgent messages...",
+        "text": "The user prefers Telegram for urgent messages...",
         "created_at": "2026-06-13T10:30:00Z"
       }
     ],
