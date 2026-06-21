@@ -33,7 +33,8 @@ class AuditChain:
             dict with ``valid`` (bool), ``chain_length``,
             ``last_hash``, and ``verified_at``.
         """
-        return self._client._post("/audit/verify", {})
+        # /memory/audit/verify is a GET endpoint on the server.
+        return self._client._get("/memory/audit/verify", {})
 
     def log_correction(
         self,
@@ -60,7 +61,7 @@ class AuditChain:
             "corrected": corrected,
             "reason": reason,
         }
-        return self._client._post("/audit/correction", payload)
+        return self._client._post("/memory/correction/log", payload)
 
     def dpo_stats(self) -> dict[str, Any]:
         """
@@ -68,17 +69,21 @@ class AuditChain:
 
         Returns how many correction pairs are ready for training
         and the health of the training pipeline.
-        """
-        return self._client._post("/audit/dpo_stats", {})
 
-    def self_heal(self) -> dict[str, Any]:
+        Note: As of v0.1.1 the production server reports 0 pairs ready
+        until enough corrections are logged. The endpoint is live;
+        the data accumulates with usage.
         """
-        Run system diagnostics on the LogicMem memory server.
+        return self._client._post("/memory/dpo/stats", {})
 
-        Detects and attempts to repair common issues with memory
-        storage, retrieval, and the audit chain.
+    def run_dpo(self) -> dict[str, Any]:
         """
-        return self._client._post("/audit/self_heal", {})
+        Trigger a DPO training run.
+
+        Requires a minimum number of correction pairs (configurable on the
+        server). Returns a status dict indicating whether training started.
+        """
+        return self._client._post("/memory/dpo/run", {})
 
     def health(self) -> dict[str, Any]:
         """
@@ -87,4 +92,4 @@ class AuditChain:
         Returns:
             dict with ``status``, ``chain_height``, ``last_append``.
         """
-        return self._client._post("/audit/health", {})
+        return self._client._post("/memory/audit", {})

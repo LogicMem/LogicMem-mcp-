@@ -6,6 +6,7 @@ Main entry point for the LogicMem SDK.
 
 from __future__ import annotations
 
+import json
 import requests
 from typing import Any
 
@@ -35,12 +36,14 @@ class LogicMem:
 
     Example:
         >>> from logicmem import LogicMem
-        >>> memory = LogicMem(api_key="lm_your_api_key")
+        >>> memory = LogicMem(api_key="your-api-key")
         >>> memory.log("User prefers urgent messages via Telegram", category="preference")
         >>> results = memory.recall("user communication preferences")
     """
 
-    DEFAULT_BASE_URL = "http://5.78.202.35:8421"
+    # Production endpoint. The SDK communicates with this URL over HTTPS.
+    # Override via the base_url argument to point at self-hosted LogicMem Open.
+    DEFAULT_BASE_URL = "https://api.logicmem.io"
     DEFAULT_TIMEOUT = 30
 
     def __init__(
@@ -57,7 +60,7 @@ class LogicMem:
         self._session = requests.Session()
         self._session.headers.update({
             "Content-Type": "application/json",
-            "X-Cron-Secret": self.api_key,
+            "Authorization": f"Bearer {self.api_key}",
         })
 
     # -------------------------------------------------------------------------
@@ -208,7 +211,7 @@ class LogicMem:
             and ``confidence``.
         """
         payload = {
-            "question": question,
+            "query": question,   # server expects 'query', not 'question'
             "context": context,
             "mode": mode,
             "max_steps": max_steps,
@@ -229,9 +232,22 @@ class LogicMem:
             dict with ``verdict`` ("supported", "contradicted",
             "inconclusive"), ``evidence`` (list of supporting
             or contradicting entries), and ``confidence``.
+
+        Note:
+            Available only via the hosted LogicMem MCP server at
+            https://mcp.logicmem.io/mcp using the ``logicframe_verify``
+            tool, which requires a LogicMem Pro API key (lm_ prefix).
+            Use ``logicmem_a2a.MCPClient`` or hit the MCP endpoint
+            directly if you have such a key.
         """
-        payload = {"claim": claim}
-        return self._post("/memory/verify", payload)
+        raise NotImplementedError(
+            "verify() is exposed via the hosted MCP server at "
+            "https://mcp.logicmem.io/mcp as the logicframe_verify tool. "
+            "It requires a LogicMem Pro API key (lm_ prefix). "
+            "The open-source SDK does not have direct REST access to this "
+            "capability. To use it, point your MCP client at "
+            "https://mcp.logicmem.io/mcp with an lm_ key."
+        )
 
     def reflect(
         self,
@@ -253,13 +269,19 @@ class LogicMem:
         Returns:
             dict with ``score`` (0-100), ``gaps`` (list of weaknesses),
             ``suggestions`` (list of improvements), and ``verdict``.
+
+        Note:
+            Available only via the hosted MCP server at
+            https://mcp.logicmem.io/mcp as ``logicframe_reflect``,
+            which requires a LogicMem Pro API key (lm_ prefix).
         """
-        payload = {
-            "draft_answer": draft_answer,
-            "question": question,
-            "memory_query": memory_query,
-        }
-        return self._post("/memory/reflect", payload)
+        raise NotImplementedError(
+            "reflect() is exposed via the hosted MCP server at "
+            "https://mcp.logicmem.io/mcp as the logicframe_reflect tool. "
+            "It requires a LogicMem Pro API key (lm_ prefix). "
+            "The open-source SDK does not have direct REST access to this "
+            "capability."
+        )
 
     def intelligence(self, client_id: str = "default") -> dict[str, Any]:
         """
@@ -273,13 +295,219 @@ class LogicMem:
         Returns:
             dict with ``patterns``, ``overdue_items``,
             ``contradictions``, and ``recommendations``.
+
+        Note:
+            Available only via the hosted MCP server at
+            https://mcp.logicmem.io/mcp as ``logicframe_intelligence``,
+            which requires a LogicMem Pro API key (lm_ prefix).
         """
-        payload = {"client_id": client_id}
-        return self._post("/memory/intelligence", payload)
+        raise NotImplementedError(
+            "intelligence() is exposed via the hosted MCP server at "
+            "https://mcp.logicmem.io/mcp as the logicframe_intelligence "
+            "tool. It requires a LogicMem Pro API key (lm_ prefix)."
+        )
 
     # -------------------------------------------------------------------------
     # Internal HTTP helpers
     # -------------------------------------------------------------------------
+
+    def _call_mcp_tool(
+        self,
+        tool_name: str,
+        arguments: dict[str, Any],
+    ) -> dict[str, Any]:
+        """
+        Call a tool via the MCP protocol.
+
+        Uses JSON-RPC 2.0 over HTTP POST to the MCP endpoint. This is how
+        SDK methods that aren't exposed as direct REST endpoints reach
+        the server.
+        """
+        url = self.base_url + "/mcp"
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {"name": tool_name, "arguments": arguments},
+            "id": 1,
+        }
+        try:
+            r = self._session.post(url, json=payload, timeout=self.timeout)
+        except requests.RequestException as e:
+            raise NetworkError(f"MCP call {tool_name} failed: {e}")
+
+        if r.status_code >= 400:
+            try:
+                body = r.json()
+                msg = body.get("error", body.get("message", r.text))
+            except Exception:
+                msg = r.text
+            if r.status_code == 401:
+                raise AuthenticationError("Invalid or missing API key", status_code=401)
+            if r.status_code == 404:
+                raise MemoryNotFoundError(
+                    f"Tool not found: {tool_name} (server may not support this MCP tool)",
+                    status_code=404,
+                )
+            if r.status_code == 429:
+                raise RateLimitError("Rate limit exceeded", status_code=429)
+            if r.status_code >= 500:
+                raise ServerError(f"Server error: {r.status_code}", status_code=r.status_code)
+            raise ValidationError(msg, status_code=r.status_code)
+
+        try:
+            body = r.json()
+        except Exception as e:
+            raise LogicMemError(f"Failed to parse MCP response: {e}")
+
+        # MCP wraps results in result.content[].text as JSON string
+        result = body.get("result", {})
+        content = result.get("content", [])
+        if content and isinstance(content, list) and len(content) > 0:
+            text = content[0].get("text", "{}")
+            try:
+                return json.loads(text)
+            except Exception:
+                return {"raw": text}
+        return result
+
+    def _get(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Make a GET request to the memory server."""
+        url = self.base_url + path
+        try:
+            resp = self._session.get(url, params=params, timeout=self.timeout)
+        except requests.exceptions.Timeout as e:
+            raise NetworkError(f"Request timed out after {self.timeout}s: {e}")
+        except requests.exceptions.ConnectionError as e:
+            raise NetworkError(f"Connection failed: {e}")
+        except requests.exceptions.RequestException as e:
+            raise NetworkError(f"Request failed: {e}")
+
+        if resp.status_code == 401:
+            raise AuthenticationError("Invalid or missing API key", status_code=401)
+        if resp.status_code == 404:
+            raise MemoryNotFoundError(f"Resource not found: {path}", status_code=404)
+        if resp.status_code == 429:
+            raise RateLimitError("Rate limit exceeded", status_code=429)
+        if resp.status_code >= 500:
+            raise ServerError(f"Server error: {resp.status_code}", status_code=resp.status_code)
+        if resp.status_code >= 400:
+            try:
+                body = resp.json()
+                msg = body.get("error", body.get("message", resp.text))
+            except Exception:
+                msg = resp.text
+            raise ValidationError(msg, status_code=resp.status_code)
+
+        try:
+            return resp.json()
+        except Exception as e:
+            raise LogicMemError(f"Failed to parse server response: {e}")
+
+    def _post_with_query(
+        self,
+        path: str,
+        query: dict[str, Any],
+        payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        POST with query-string params (for endpoints that take params in
+        the URL, not the body).
+        """
+        url = self.base_url + path
+        try:
+            resp = self._session.post(
+                url,
+                params=query,
+                json=payload or {},
+                timeout=self.timeout,
+            )
+        except requests.exceptions.Timeout as e:
+            raise NetworkError(f"Request timed out after {self.timeout}s: {e}")
+        except requests.exceptions.ConnectionError as e:
+            raise NetworkError(f"Connection failed: {e}")
+        except requests.exceptions.RequestException as e:
+            raise NetworkError(f"Request failed: {e}")
+
+        if resp.status_code == 401:
+            raise AuthenticationError("Invalid or missing API key", status_code=401)
+        if resp.status_code == 404:
+            raise MemoryNotFoundError(f"Resource not found: {path}", status_code=404)
+        if resp.status_code == 429:
+            raise RateLimitError("Rate limit exceeded", status_code=429)
+        if resp.status_code >= 500:
+            raise ServerError(f"Server error: {resp.status_code}", status_code=resp.status_code)
+        if resp.status_code >= 400:
+            try:
+                body = resp.json()
+                msg = body.get("error", body.get("message", resp.text))
+            except Exception:
+                msg = resp.text
+            raise ValidationError(msg, status_code=resp.status_code)
+
+        try:
+            return resp.json()
+        except Exception as e:
+            raise LogicMemError(f"Failed to parse server response: {e}")
+
+    def _post(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """
+        Make a POST request to the LogicMem server.
+
+        Handles error mapping and response normalization.
+        """
+        """Make a GET request to the memory server."""
+        url = self.base_url + path
+        try:
+            r = self._session.get(url, params=params, timeout=self.timeout)
+        except requests.RequestException as e:
+            raise NetworkError(f"GET {path} failed: {e}")
+        return self._handle_response(r)
+
+    def _post_with_query(
+        self,
+        path: str,
+        query: dict[str, Any],
+        payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        POST with query-string params (for endpoints that take params in
+        the URL, not the body).
+        """
+        url = self.base_url + path
+        try:
+            resp = self._session.post(
+                url,
+                params=query,
+                json=payload or {},
+                timeout=self.timeout,
+            )
+        except requests.exceptions.Timeout as e:
+            raise NetworkError(f"Request timed out after {self.timeout}s: {e}")
+        except requests.exceptions.ConnectionError as e:
+            raise NetworkError(f"Connection failed: {e}")
+        except requests.exceptions.RequestException as e:
+            raise NetworkError(f"Request failed: {e}")
+
+        if resp.status_code == 401:
+            raise AuthenticationError("Invalid or missing API key", status_code=401)
+        if resp.status_code == 404:
+            raise MemoryNotFoundError(f"Resource not found: {path}", status_code=404)
+        if resp.status_code == 429:
+            raise RateLimitError("Rate limit exceeded", status_code=429)
+        if resp.status_code >= 500:
+            raise ServerError(f"Server error: {resp.status_code}", status_code=resp.status_code)
+        if resp.status_code >= 400:
+            try:
+                body = resp.json()
+                msg = body.get("error", body.get("message", resp.text))
+            except Exception:
+                msg = resp.text
+            raise ValidationError(msg, status_code=resp.status_code)
+
+        try:
+            return resp.json()
+        except Exception as e:
+            raise LogicMemError(f"Failed to parse server response: {e}")
 
     def _post(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
         """

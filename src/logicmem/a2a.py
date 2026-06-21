@@ -32,7 +32,7 @@ class A2AClient:
         self,
         api_key: str,
         agent_id: str,
-        base_url: str = "http://5.78.202.35:8421",
+        base_url: str = "https://api.logicmem.io",
     ):
         if not agent_id:
             raise ValidationError("agent_id is required for A2A")
@@ -51,7 +51,7 @@ class A2AClient:
         client_id: str = "default",
     ) -> dict[str, Any]:
         """
-        Register this agent in the A2A defense registry.
+        Register this agent in the LogicMem agent registry.
 
         Other agents in the same ``client_id`` can discover and communicate
         with this agent after registration.
@@ -66,7 +66,7 @@ class A2AClient:
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
-        return client._post("/a2a/register", {
+        return client._post("/memory/agent/register", {
             "agent_id": self.agent_id,
             "name": name or self.agent_id,
             "agent_type": agent_type,
@@ -86,12 +86,13 @@ class A2AClient:
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
-        result = client._post("/a2a/list", {"client_id": client_id})
+        # /memory/org/agents is a GET endpoint with client_id as a query param.
+        result = client._get("/memory/org/agents", {"client_id": client_id})
         if isinstance(result, list):
             return result
         return result.get("agents", [])
 
-    def heartbeat(self, status: str = "online") -> dict[str, Any]:
+    def heartbeat(self, status: str = "online", client_id: str = "default") -> dict[str, Any]:
         """
         Send a heartbeat to the A2A registry.
 
@@ -106,10 +107,17 @@ class A2AClient:
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
-        return client._post("/a2a/heartbeat", {
-            "agent_id": self.agent_id,
-            "status": status,
-        })
+        # /memory/agent/heartbeat is POST with client_id, agent_id, status
+        # all in the QUERY STRING (not the body). The agent must be
+        # registered first via ``register()``.
+        return client._post_with_query(
+            "/memory/agent/heartbeat",
+            {
+                "client_id": client_id,
+                "agent_id": self.agent_id,
+                "status": status,
+            },
+        )
 
     # -------------------------------------------------------------------------
     # Memory Sharing
@@ -157,7 +165,7 @@ class A2AClient:
         if tags:
             payload["tags"] = tags
 
-        return client._post("/a2a/share", payload)
+        return client._post("/memory/shared/write", payload)
 
     def receive_memory(
         self,
@@ -177,7 +185,8 @@ class A2AClient:
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
-        result = client._post("/a2a/receive", {
+        # /memory/shared/updates is a GET endpoint on the server.
+        result = client._get("/memory/shared/updates", {
             "agent_id": self.agent_id,
             "client_id": client_id,
             "limit": limit,
@@ -204,7 +213,7 @@ class A2AClient:
             "agent_id": self.agent_id,
             "since_timestamp": since_timestamp,
         }
-        result = client._post("/a2a/sync", payload)
+        result = client._post("/memory/federation/query", payload)
         if isinstance(result, list):
             return result
         return result.get("entries", [])
@@ -247,7 +256,7 @@ class A2AClient:
         if tags:
             payload["tags"] = tags
 
-        return client._post("/a2a/write_shared", payload)
+        return client._post("/memory/shared/write", payload)
 
     def __repr__(self) -> str:
         return f"A2AClient(agent_id={self.agent_id!r})"
