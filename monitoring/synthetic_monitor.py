@@ -169,7 +169,30 @@ MCP_TOOL_PROBES = [
     },
 ]
 
-ALL_PROBES = INTERNAL_ENDPOINTS + EXTERNAL_ENDPOINTS + MCP_TOOL_PROBES
+# Data integrity probes — these go beyond HTTP-level health to verify
+# that stored data is actually readable, not just that the process is up.
+# Added 2026-06-22 after the synthetic monitor + contract tests caught
+# 78.4% of recalled memories returning "[decryption failed]". Without
+# this probe, /memory/health reports "healthy" while the data is
+# essentially unreadable.
+INTEGRITY_PROBES = [
+    {
+        "name": "decryptability_rate",
+        "url": "http://localhost:8421/memory/recall",
+        "method": "POST",
+        "headers": AUTH_HEADERS,
+        "body": {"query": "memory", "client_id": "ed_creed", "limit": 20},
+        "expected_keys": ["results"],
+        "max_ms": 10000,
+        # Custom validator: alerts if more than 10% of recall results
+        # return "[decryption failed]". The probe is OK as long as the
+        # endpoint works; the alert is raised separately by the
+        # _validate_integrity hook below.
+        "integrity_threshold": 0.10,
+    },
+]
+
+ALL_PROBES = INTERNAL_ENDPOINTS + EXTERNAL_ENDPOINTS + MCP_TOOL_PROBES + INTEGRITY_PROBES
 
 
 # ---------------------------------------------------------------------------
@@ -377,6 +400,43 @@ def run_once() -> dict[str, Any]:
     results = [http_probe(p) for p in ALL_PROBES]
     state = load_state()
     alerts = detect_drift(results, state)
+
+    # Integrity probes — data-level checks beyond HTTP success
+    for r in results:
+        probe_meta = next((p for p in ALL_PROBES if p["name"] == r["name"]), None)
+        if not probe_meta or "integrity_threshold" not in probe_meta:
+            continue
+        if not r["ok"]:
+            continue  # endpoint failed, handled by detect_drift
+        # Parse the response and check data integrity
+        try:
+            threshold = probe_meta["integrity_threshold"]
+            # We need to fetch the actual response — re-fetch the raw body
+            req = urllib.request.Request(
+                probe_meta["url"],
+                data=json.dumps(probe_meta.get("body", {})).encode("utf-8"),
+                method=probe_meta.get("method", "POST"),
+                headers={"Content-Type": "application/json", **probe_meta.get("headers", {})},
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                payload = json.loads(resp.read().decode())
+            results_list = payload.get("results", [])
+            if results_list:
+                failures = sum(1 for x in results_list if x.get("text") == "[decryption failed]")
+                rate = failures / len(results_list)
+                r["integrity_check"] = {
+                    "samples": len(results_list),
+                    "failures": failures,
+                    "rate": round(rate, 3),
+                    "threshold": threshold,
+                }
+                if rate > threshold:
+                    alerts.append(
+                        f"INTEGRITY: {r['name']} — {failures}/{len(results_list)} "
+                        f"({rate*100:.1f}%) decryption failures (threshold {threshold*100:.0f}%)"
+                    )
+        except Exception as e:
+            r["integrity_check"] = {"error": str(e)}
 
     summary = {
         "ts": datetime.now(timezone.utc).isoformat(),
