@@ -78,7 +78,9 @@ pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 
 Sign up at **[logicmem.io](https://logicmem.io)** → Settings → API Keys → Create Key.
 
-Free tier: **1,000 memory operations/month**.
+Free tier: **1,000 memory operations/minute** (default rate limit; configurable per key).
+
+> Pro tier: **10,000+ ops/min** with burst tolerance for voice traffic.
 
 > ⚠️ **macOS users:** If you see a `PEP 668` error during install, rerun with `--break-system-packages` flag (see Install section above).
 
@@ -335,14 +337,27 @@ The server accepts JSON-RPC 2.0 requests over HTTPS.
 | `logicframe_memory_log` | Store a new memory with category, importance, tags |
 | `logicframe_memory_recall` | Search memories with natural language |
 | `logicframe_memory_context` | Get full context about a client, project, or situation |
-| `logicframe_reason` | Multi-step reasoning with memory consultation |
-| `logicframe_verify` | Verify a claim against stored facts |
-| `logicframe_reflect` | Self-critique — evaluate draft against memory |
+| `logicframe_reason` | Multi-step reasoning with memory consultation (all tiers) |
 | `logicframe_audit_verify` | Verify integrity of the audit chain |
-| `logicframe_intelligence` | Proactive intelligence — detect patterns and overdue items |
 | `logicframe_correction_log` | Log corrections — feeds DPO training pipeline |
 | `logicframe_conversations_store` | Store conversation state for auto-resume |
 | `logicframe_conversations_resume` | Retrieve stored conversation for continuity |
+
+### Pro Tier Tools (requires `lm_*` Pro API key)
+
+The following tools require a **LogicMem Pro** API key (`lm_*` prefix) and are
+served via the hosted MCP at `mcp.logicmem.io`. They are NOT available via
+the REST API or the free tier — the SDK will raise `NotImplementedError` if
+you try to call them through `client.verify()`, `client.reflect()`, or
+`client.intelligence()` from a free tier key.
+
+| Tool | Description |
+|------|-------------|
+| `logicframe_verify` | Verify a claim against stored facts |
+| `logicframe_reflect` | Self-critique — evaluate draft against memory |
+| `logicframe_intelligence` | Proactive intelligence — detect patterns and overdue items |
+
+Upgrade to Pro at [logicmem.io](https://logicmem.io) → Settings → Plan.
 
 See [MCP-PROTOCOL.md](MCP-PROTOCOL.md) for the full protocol reference.
 
@@ -384,6 +399,7 @@ All documentation lives in the [`docs/`](docs/) folder right here in this repo:
 | **[🔗 A2A Sharing](docs/A2A-PROTOCOL.md)** | Agent-to-agent memory |
 | **[🔒 Security](docs/SECURITY.md)** | Encryption, CNSA 2.0, audit |
 | **[💻 Code Examples](docs/EXAMPLES.md)** | All examples in one place |
+| **[🔁 Embedding Fallback](docs/EMBEDDING-FALLBACK.md)** | 3-tier resilience: Cohere → Ollama → TF-IDF |
 
 ## Links
 

@@ -126,8 +126,11 @@ for step in answer.get("steps", []):
 
 ### Verify a Claim
 
+> **Pro tier only.** The SDK will raise `NotImplementedError` if you call this from a free-tier key.
+> For free tier, use `memory.reason()` with `mode="deep"` and a verification-flavored question.
+
 ```python
-# Before making a claim, verify it against memory
+# Pro tier (lm_* API key) — hosted MCP at mcp.logicmem.io/mcp
 verdict = memory.verify(
     claim="The user prefers email for urgent messages."
 )
@@ -140,8 +143,10 @@ for entry in verdict.get("evidence", []):
 
 ### Self-Reflection Before Answering
 
+> **Pro tier only.** The SDK will raise `NotImplementedError` if you call this from a free-tier key.
+
 ```python
-# Draft an answer, then have the agent critique itself
+# Pro tier (lm_* API key) — hosted MCP at mcp.logicmem.io/mcp
 draft = "You should build the mobile app first because it's a growing market."
 
 review = memory.reflect(
