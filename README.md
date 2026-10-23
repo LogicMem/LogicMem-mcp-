@@ -49,7 +49,7 @@ This repo is the **LogicMem SDK** — the open-source client for connecting AI a
 | **Persistent Memory** | ✅ Free tier | ✅ Unlimited |
 | **A2A Memory Sharing** | ✅ Basic | ✅ Advanced governance + cross-org |
 | **Reasoning Engine** | ✅ API call (server-powered) | ✅ Deep / Exhaustive modes |
-| **Audit Trail** | ✅ API call (server-verified) | ✅ Tamper-evident ledger + CNSA 2.0 |
+| **Audit Trail** | ✅ Tamper-evident, hash-chained ledger (verify via API or MCP) | ✅ Same ledger + CNSA 2.0 |
 | **Voice Agent Memory** | ✅ | ✅ |
 | **Deployment** | Cloud (logicmem.io) | Cloud, on-prem, or air-gap |
 | **Support** | Community | Dedicated + SLA |
@@ -77,7 +77,7 @@ pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 
 ### 1. Get an API Key
 
-Sign up at **[logicmem.io](https://logicmem.io)** → Settings → API Keys → Create Key.
+Sign up at **[logicmem.io/signup](https://logicmem.io/signup)** and copy your `lm_` key from the [dashboard](https://logicmem.io/dashboard).
 
 Rate limits depend on your plan; requests over the limit return HTTP 429 (`RateLimitError` in the SDK).
 
@@ -224,8 +224,7 @@ print(f"Correction pairs ready: {stats['ready_count']}")
 
 ## OpenClaw Integration
 
-> **OpenClaw** is the fastest-growing open-source AI agent framework (300K+ GitHub stars).
-> LogicMem is fully compatible with OpenClaw.
+> LogicMem works with [OpenClaw](https://github.com/openclaw/openclaw) over MCP.
 
 ### Option A — Direct MCP Server URL (Simplest, 1 line of config)
 
@@ -309,7 +308,7 @@ openclaw mcp list
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LOGICMEM_API_KEY` | — | Your API key (`lm_xxx`) from logicmem.io/settings |
+| `LOGICMEM_API_KEY` | — | Your API key (`lm_xxx`) from the [LogicMem dashboard](https://logicmem.io/dashboard) |
 | `LOGICMEM_SERVER_URL` | `https://api.logicmem.io` | Override the LogicMem server URL |
 | `LOGICMEM_CLIENT_ID` | `default` | Default client_id for memory operations |
 | `LOGICMEM_TIMEOUT` | `30` | HTTP request timeout in seconds |
@@ -356,23 +355,9 @@ you try to call them through `client.verify()`, `client.reflect()`, or
 | `logicframe_reflect` | Self-critique — evaluate draft against memory |
 | `logicframe_intelligence` | Proactive intelligence — detect patterns and overdue items |
 
-Upgrade to Pro at [logicmem.io](https://logicmem.io) → Settings → Plan.
+See plans at [logicmem.io/pricing](https://logicmem.io/pricing).
 
 See [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md) for the full protocol reference.
-
----
-
-## Comparison
-
-| Feature | LogicMem | Mem0 | Letta | Zep |
-|---------|:--------:|:----:|:-----:|:---:|
-| **MCP-native** | ✅ Full | ⚠️ | ✅ | ⚠️ |
-| **Reasoning engine** | ✅ | ❌ | ⚠️ | ❌ |
-| **A2A memory sharing** | ✅ | ❌ | ⚠️ | ❌ |
-| **Tamper-evident audit trail** | ✅ | ❌ | ❌ | ⚠️ |
-| **DPO training pipeline** | ✅ | ❌ | ❌ | ❌ |
-| **Voice agent memory** | ✅ | ❌ | ⚠️ | ❌ |
-| **Federated memory** | ✅ | ❌ | ❌ | ❌ |
 
 ---
 
