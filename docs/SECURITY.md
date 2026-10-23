@@ -70,7 +70,7 @@ Even if two tenants use the same agent ID, memories are isolated by `client_id`.
 
 ## Audit Trail
 
-Every memory operation is logged to an **immutable hash-linked chain**:
+Memory operations made through the API and MCP connector are logged to a **tamper-evident, hash-linked chain**:
 
 ```
 Genesis Block
@@ -104,11 +104,11 @@ When rotating encryption keys:
 
 ---
 
-## Compliance
+## Regulatory record-keeping
 
-- **CNSA 2.0:** Suite B cryptography for defense and national security workloads
-- **GDPR:** Data residency options for EU customers
-- **SOC 2 Type II:** In progress (expected Q3 2026)
+LogicMem is designed to support record-keeping such as [EU AI Act Article 12](https://logicmem.io/eu-ai-act-article-12/). It is a building block for your records, not a compliance certificate. Nothing here is legal advice.
+
+- **Cryptography:** CNSA 2.0 algorithms (Enterprise)
 
 ---
 

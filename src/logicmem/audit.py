@@ -1,8 +1,8 @@
 """
 Audit Chain Tools
 =================
-Immutable audit trail verification for LogicMem.
-Every operation is logged to a cryptographically linked hash chain.
+Tamper-evident audit trail verification for LogicMem.
+Operations are logged to a cryptographically linked hash chain.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ class AuditChain:
     """
     Tools for verifying the integrity of the LogicMem audit chain.
 
-    The audit chain is an immutable, hash-linked ledger of all memory
+    The audit chain is a tamper-evident, hash-linked ledger of memory
     operations. Use these tools to verify that no memory has been
     tampered with.
     """

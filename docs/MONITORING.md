@@ -65,7 +65,7 @@ qdrant's `/readyz`). `headers` for auth, `jsonrpc_body` for MCP.
 
 ## Authentication
 
-Memory server probes use `X-Cron-Secret: themis-cron-2026` for admin
+Memory server probes use `X-Cron-Secret: <YOUR_CRON_SECRET>` for admin
 read access (memory/stats + memory/audit/verify). MCP `tools/call`
 probes use `X-Agent-ID: themis-synthetic-monitor` so the server can
 attribute and rate-limit synthetic traffic separately from real users.

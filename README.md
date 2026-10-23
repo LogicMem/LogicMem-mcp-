@@ -1,7 +1,8 @@
-# 🧠 LogicMem — AI Agent Memory Infrastructure
+# LogicMem: prove what your AI did
 
-> **Persistent memory, A2A sharing, reasoning engine, and immutable audit trail
-> for AI agents via the Model Context Protocol.**
+Tamper-evident, hash-chained records of what your AI agents did and relied on, so you can show an auditor that nothing was changed. This is the open-source SDK and MCP connector. Records are kept and verified on the LogicMem server, in our cloud.
+
+> Observability tells you what broke. LogicMem shows what happened.
 
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -33,7 +34,7 @@ and get:
 - 🔍 **Persistent Memory** — Store and search memories across sessions
 - 🧠 **Reasoning Engine** — Multi-step reasoning that consults memory
 - 🔗 **A2A Memory Sharing** — Agents share context in real-time
-- 📋 **Immutable Audit Trail** — Cryptographically verifiable history
+- 📋 **Tamper-evident Audit Trail** — Hash-chained, verifiable history
 - 🎙️ **Voice Memory** — Caller history for VAPI, Retell AI, Bland AI
 
 ---
@@ -45,10 +46,10 @@ This repo is the **LogicMem SDK** — the open-source client for connecting AI a
 | | **Open Source (This Repo)** | **LogicMem Pro / Enterprise** |
 |---|---|---|
 | **SDK / Client** | ✅ Fully open (MIT) | ✅ Included |
-| **Persistent Memory** | ✅ Up to 1,000 ops/mo (free tier) | ✅ Unlimited |
+| **Persistent Memory** | ✅ Free tier | ✅ Unlimited |
 | **A2A Memory Sharing** | ✅ Basic | ✅ Advanced governance + cross-org |
 | **Reasoning Engine** | ✅ API call (server-powered) | ✅ Deep / Exhaustive modes |
-| **Audit Trail** | ✅ API call (server-verified) | ✅ Tamper-evident ledger + CNSA 2.0 |
+| **Audit Trail** | ✅ Tamper-evident, hash-chained ledger (verify via API or MCP) | ✅ Same ledger + CNSA 2.0 |
 | **Voice Agent Memory** | ✅ | ✅ |
 | **Deployment** | Cloud (logicmem.io) | Cloud, on-prem, or air-gap |
 | **Support** | Community | Dedicated + SLA |
@@ -76,11 +77,9 @@ pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 
 ### 1. Get an API Key
 
-Sign up at **[logicmem.io](https://logicmem.io)** → Settings → API Keys → Create Key.
+Sign up at **[logicmem.io/signup](https://logicmem.io/signup)** and copy your `lm_` key from the [dashboard](https://logicmem.io/dashboard).
 
-Free tier: **1,000 memory operations/minute** (default rate limit; configurable per key).
-
-> Pro tier: **10,000+ ops/min** with burst tolerance for voice traffic.
+Rate limits depend on your plan; requests over the limit return HTTP 429 (`RateLimitError` in the SDK).
 
 > ⚠️ **macOS users:** If you see a `PEP 668` error during install, rerun with `--break-system-packages` flag (see Install section above).
 
@@ -225,8 +224,7 @@ print(f"Correction pairs ready: {stats['ready_count']}")
 
 ## OpenClaw Integration
 
-> **OpenClaw** is the fastest-growing open-source AI agent framework (300K+ GitHub stars).
-> LogicMem is fully compatible with OpenClaw.
+> LogicMem works with [OpenClaw](https://github.com/openclaw/openclaw) over MCP.
 
 ### Option A — Direct MCP Server URL (Simplest, 1 line of config)
 
@@ -310,8 +308,8 @@ openclaw mcp list
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LOGICMEM_API_KEY` | — | Your API key (`lm_xxx`) from logicmem.io/settings |
-| `LOGICMEM_SERVER_URL` | `https://api.logicmem.io` | Point to self-hosted server if using logicmem-open |
+| `LOGICMEM_API_KEY` | — | Your API key (`lm_xxx`) from the [LogicMem dashboard](https://logicmem.io/dashboard) |
+| `LOGICMEM_SERVER_URL` | `https://api.logicmem.io` | Override the LogicMem server URL |
 | `LOGICMEM_CLIENT_ID` | `default` | Default client_id for memory operations |
 | `LOGICMEM_TIMEOUT` | `30` | HTTP request timeout in seconds |
 
@@ -357,34 +355,20 @@ you try to call them through `client.verify()`, `client.reflect()`, or
 | `logicframe_reflect` | Self-critique — evaluate draft against memory |
 | `logicframe_intelligence` | Proactive intelligence — detect patterns and overdue items |
 
-Upgrade to Pro at [logicmem.io](https://logicmem.io) → Settings → Plan.
+See plans at [logicmem.io/pricing](https://logicmem.io/pricing).
 
-See [MCP-PROTOCOL.md](MCP-PROTOCOL.md) for the full protocol reference.
-
----
-
-## Comparison
-
-| Feature | LogicMem | Mem0 | Letta | Zep |
-|---------|:--------:|:----:|:-----:|:---:|
-| **MCP-native** | ✅ Full | ⚠️ | ✅ | ⚠️ |
-| **Reasoning engine** | ✅ | ❌ | ⚠️ | ❌ |
-| **A2A memory sharing** | ✅ | ❌ | ⚠️ | ❌ |
-| **Immutable audit trail** | ✅ | ❌ | ❌ | ⚠️ |
-| **DPO training pipeline** | ✅ | ❌ | ❌ | ❌ |
-| **Voice agent memory** | ✅ | ❌ | ⚠️ | ❌ |
-| **Federated memory** | ✅ | ❌ | ❌ | ❌ |
+See [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md) for the full protocol reference.
 
 ---
 
 ## Security
 
 - **Encryption:** AES-256-GCM at rest, TLS 1.3 in transit
-- **Compliance:** CNSA 2.0 cryptography for defense/government workloads
-- **Audit:** Every operation logged to immutable hash-linked chain
+- **Cryptography:** CNSA 2.0 algorithms (Enterprise)
+- **Audit:** Memory operations made through the API and MCP connector are logged to a tamper-evident, hash-linked chain
 - **API Keys:** Per-agent keys with fine-grained permissions
 
-See [SECURITY.md](SECURITY.md) for the full security model.
+See [SECURITY.md](docs/SECURITY.md) for the full security model.
 
 ---
 
@@ -404,7 +388,9 @@ All documentation lives in the [`docs/`](docs/) folder right here in this repo:
 ## Links
 
 - 🌐 [logicmem.io](https://logicmem.io) — Product
-- 💬 [Discord](https://discord.gg/logicmem) — Community
+- 🚀 [Quickstart](https://logicmem.io/quickstart/) — Connect your agents and verify the audit chain
+- 🧪 [Pilots](https://logicmem.io/design-partner/) — 30-day pilots from $500/mo
+- 📜 [EU AI Act Article 12](https://logicmem.io/eu-ai-act-article-12/) — LogicMem is designed to support record-keeping such as EU AI Act Article 12 (not legal advice)
 - 📧 [support@logicmem.io](mailto:support@logicmem.io)
 
 ---

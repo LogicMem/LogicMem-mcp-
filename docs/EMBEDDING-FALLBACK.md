@@ -12,11 +12,11 @@ The chain below is tried in order — the first one to succeed wins.
 |------|----------|------------|------|-------------|
 | 1 | Cohere `embed-v4.0` | 1536 | ~0.3s | API key + network |
 | 1b | Cohere `embed-english-v3.0` | 1024 → padded to 1536 | 1.5s timeout | API key + network |
-| 2 | Ollama `nomic-embed-text` (local) | 768 → padded to 1536 | ~0.07s | Ollama running on Hetzner |
+| 2 | Ollama `nomic-embed-text` (local) | 768 → padded to 1536 | ~0.07s | Local Ollama service |
 | 3 | TF-IDF hash-based (deterministic) | 1536 | ~0.04s | None (Python stdlib only) |
 
 **Tier 3 is the absolute fallback.** It produces a deterministic 1536-dim
-vector based on token hashing. Not semantic — but never fails.
+vector based on token hashing. Not semantic, but it has no external dependencies.
 
 ## What This Means For You
 
@@ -29,8 +29,7 @@ vector based on token hashing. Not semantic — but never fails.
 
 ## Inspecting What Tier Served
 
-Every fallback chain decision is logged. To see what tier served your last
-request, you can check the model field in the response:
+To see what tier served a request, check the model field in the response:
 
 ```python
 r = memory.log(text="hello world", client_id="my_app")
@@ -43,22 +42,5 @@ print(r.get("model_used"))
 ## Resolving Tier-Degraded Recall
 
 If you see lots of `ollama-nomic-embed-text-padded` or `tfidf-hash-v1` in your
-audit logs, your customers are getting degraded recall quality. To recover:
-
-1. Check Cohere status: `curl https://status.cohere.com/`
-2. Check Hetzner Ollama service: `ssh root@5.78.202.35 'systemctl status ollama'`
-3. If Cohere is permanently down for you, contact LogicFrame to migrate to
-   a fully self-hosted embedding stack (deferred v2 feature).
-
-## Why This Matters
-
-Voice agent customers running VAPI/Retell/Bland make 3-10 memory ops per
-active call. Without tier 2/3 fallbacks, a single Cohere outage would
-immediately fail every customer voice session. With this chain, a single
-provider outage degrades quality but never breaks the customer experience.
-
-## Related
-
-- `RUNBOOK.md` (internal) — operational procedures for fixing each tier
-- `MEMORY.md` — see "Production Readiness Audit 2026-06-21" for the audit
-  that motivated this design
+responses, recall quality is degraded. Check the Cohere status page
+(https://status.cohere.com/) and contact support@logicmem.io if it persists.
