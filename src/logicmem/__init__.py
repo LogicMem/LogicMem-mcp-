@@ -1,9 +1,9 @@
 """
-LogicMem — AI Agent Memory Infrastructure
-=========================================
+LogicMem — prove what your AI did
+=================================
 
-Persistent memory, A2A sharing, reasoning engine, and immutable audit trail
-for AI agents via the Model Context Protocol.
+Python SDK and MCP connector for LogicMem: tamper-evident, hash-chained
+records of what your AI agents did, plus memory, A2A sharing and reasoning.
 
 Usage:
     from logicmem import LogicMem

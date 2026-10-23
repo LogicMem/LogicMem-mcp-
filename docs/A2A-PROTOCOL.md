@@ -229,7 +229,7 @@ for agent_id in ["agent-sales", "agent-support", "agent-success"]:
 - Shared memories are scoped to `client_id` — agents in different
   `client_id` values cannot see each other's shares
 - Private shares (`:is_private: true`) are only visible to the target agent
-- All shares are logged to the immutable audit chain
+- All shares are logged to the tamper-evident audit chain
 
 ### Rate Limits
 

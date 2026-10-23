@@ -1,6 +1,6 @@
 # MCP Protocol Reference
 
-> **Complete reference for the LogicMem Model Context Protocol server.**
+> **Reference for the LogicMem Model Context Protocol server.**
 
 ## Important — Two Interfaces
 
@@ -39,7 +39,7 @@ Content-Type: application/json
 ### cURL Example
 
 ```bash
-curl -X POST https://mcp.logicmem.io \
+curl -X POST https://mcp.logicmem.io/mcp \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer lm_your_api_key" \
   -d '{

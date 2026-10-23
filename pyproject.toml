@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "logicmem"
 version = "0.1.1"
-description = "AI agent memory infrastructure — persistent memory, A2A sharing, reasoning engine"
+description = "Python SDK and MCP connector for LogicMem: tamper-evident records of what your AI agents did."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"
@@ -43,7 +43,7 @@ cli = [
 ]
 [project.urls]
 Homepage = "https://logicmem.io"
-Documentation = "https://docs.logicmem.io"
+Documentation = "https://logicmem.io/quickstart/"
 Repository = "https://github.com/LogicMem/LogicMem-mcp-"
 Changelog = "https://github.com/LogicMem/LogicMem-mcp-/releases"
 "Bug Tracker" = "https://github.com/LogicMem/LogicMem-mcp-/issues"

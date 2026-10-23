@@ -1,6 +1,6 @@
 # Examples
 
-> **Complete working examples for every LogicMem feature.**
+> **Working examples for LogicMem features.**
 
 ---
 
