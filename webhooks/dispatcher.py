@@ -49,10 +49,9 @@ MAX_BACKOFF_SEC = 300  # 5 min cap per attempt
 DEFAULT_TIMEOUT_SEC = 10
 
 # Optional HMAC secret (for signed webhooks)
-WEBHOOK_SIGNING_SECRET = os.environ.get(
-    "LOGICMEM_WEBHOOK_SECRET",
-    "themis-cron-2026",  # fallback — production should rotate
-)
+WEBHOOK_SIGNING_SECRET = os.environ.get("LOGICMEM_WEBHOOK_SECRET", "")
+if not WEBHOOK_SIGNING_SECRET:
+    print("ERROR: LOGICMEM_WEBHOOK_SECRET is not set; webhook delivery is disabled until it is configured.", file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------
@@ -141,6 +140,8 @@ def mark_failed_to_dlq(record: dict[str, Any], error: str) -> None:
 
 def deliver(record: dict[str, Any]) -> tuple[bool, str | None]:
     """Try to deliver a single record. Returns (success, error)."""
+    if not WEBHOOK_SIGNING_SECRET:
+        return False, "signing_secret_missing"
     payload_bytes = json.dumps(record["payload"]).encode("utf-8")
     headers = sign_payload(payload_bytes)
 
@@ -167,6 +168,10 @@ def deliver(record: dict[str, Any]) -> tuple[bool, str | None]:
 
 def dispatch_pending(now: datetime | None = None) -> dict[str, int]:
     """Process the queue once. Returns counts."""
+    if not WEBHOOK_SIGNING_SECRET:
+        print("ERROR: LOGICMEM_WEBHOOK_SECRET is not set; skipping dispatch run (queue left untouched).", file=sys.stderr)
+        return {"delivered": 0, "retried": 0, "dlq": 0, "skipped": 0}
+
     if now is None:
         now = datetime.now(timezone.utc)
 
