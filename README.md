@@ -16,7 +16,7 @@ Six months from now, an auditor asks what your AI agent did and what it relied o
 
 ## What LogicMem gives you
 
-A tamper-evident, hash-chained record of what your agents did, so you can show whether anything was changed. Shared memory across vendors comes with it.
+A tamper-evident, hash-chained record of your agents' key memory operations, so you can show whether anything was changed. Shared memory across vendors comes with it.
 
 ---
 
@@ -274,7 +274,7 @@ See [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md) for details.
 ## Security
 
 - **In transit:** HTTPS (the hosted endpoints negotiate TLS 1.3)
-- **Audit:** memory operations made through the API and MCP connector are logged to a tamper-evident, hash-linked chain that you can re-check with `logicframe_audit_verify` or `AuditChain.verify()`
+- **Audit:** key memory operations made through the API and MCP connector (for example log, recall and correct) are logged to a tamper-evident, hash-linked chain that you can re-check with `logicframe_audit_verify` or `AuditChain.verify()`. Not every endpoint writes an audit entry yet.
 - **API keys:** sent as a Bearer token; keep them out of code and git
 
 See [SECURITY.md](docs/SECURITY.md).

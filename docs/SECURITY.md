@@ -39,7 +39,7 @@ memory.log(text="...", client_id="tenant-b")
 
 ## Audit trail
 
-Memory operations made through the API and MCP connector are logged to a **tamper-evident, hash-linked chain**:
+Key memory operations made through the API and MCP connector (for example log, recall and correct) are logged to a **tamper-evident, hash-linked chain**. Not every endpoint writes an audit entry yet:
 
 ```
 Genesis entry
@@ -51,7 +51,7 @@ Entry 1 (prev_hash + operation → hash)
 Entry 2 (prev_hash + operation → hash)
 ```
 
-Because each entry includes the previous entry's hash, a modified, deleted or reordered entry breaks the chain, and that shows up when you re-check it with `AuditChain.verify()` (SDK) or the `logicframe_audit_verify` MCP tool. Tamper-evident means changes are detectable, not that they are impossible.
+Because each entry includes the previous entry's hash, a modified, deleted or reordered past entry breaks the chain from that point, and that shows up when you re-check it with `AuditChain.verify()` (SDK) or the `logicframe_audit_verify` MCP tool. Tamper-evident means changes are detectable, not that they are impossible. Chain verification alone does not detect removal of the most recent entries.
 
 ---
 
