@@ -334,7 +334,7 @@ def handle_initialize(req_id):
                 "version": "1.0.0",
             },
             "instructions": (
-                "LogicMem — persistent memory for AI agents. "
+                "LogicMem — tamper-evident records of what your AI agents did. "
                 "Use logicmem_memory_log to store important facts, "
                 "logicmem_memory_recall to retrieve them. "
                 "Also supports A2A shared memory for multi-agent systems."

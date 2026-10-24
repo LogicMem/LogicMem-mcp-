@@ -1,4 +1,4 @@
-# ⚡ LogicMem Quickstart — 5 Minutes to Persistent Memory
+# ⚡ LogicMem Quickstart — 5 minutes to your first tamper-evident record
 
 > **Goal:** By the end of this guide, you'll have a Python script that stores
 > memories, searches them, and uses the reasoning engine — in under 5 minutes.**
