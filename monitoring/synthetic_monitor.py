@@ -42,13 +42,15 @@ from typing import Any
 # Configuration
 # ---------------------------------------------------------------------------
 
-CRON_SECRET = os.environ.get("THEMIS_CRON_SECRET", "themis-cron-2026")
+CRON_SECRET = os.environ.get("THEMIS_CRON_SECRET", "")
+if not CRON_SECRET:
+    print("ERROR: THEMIS_CRON_SECRET is not set; admin probes will be unauthenticated and alert writes skipped.", file=sys.stderr)
 LOG_PATH = Path("/root/LogicFrame/logs/synthetic_monitor.jsonl")
 STATE_PATH = Path("/root/LogicFrame/logs/synthetic_monitor_state.json")
 ALERT_PATH = Path("/root/LogicFrame/logs/synthetic_monitor_alerts.jsonl")
 
 # Auth headers for memory server (cron secret gets admin read)
-AUTH_HEADERS = {"X-Cron-Secret": CRON_SECRET}
+AUTH_HEADERS = {"X-Cron-Secret": CRON_SECRET} if CRON_SECRET else {}
 
 # Internal endpoints (probed from Hetzner localhost)
 INTERNAL_ENDPOINTS = [
@@ -369,6 +371,9 @@ def write_alert(messages: list[str]) -> None:
 
     # Also write to memory server so production health monitor sees it
     try:
+        if not CRON_SECRET:
+            print("alert-write-skipped: THEMIS_CRON_SECRET is not set", file=sys.stderr)
+            return
         body = json.dumps({
             "text": f"[SYNTHETIC_MONITOR] {len(messages)} alert(s): {'; '.join(messages[:3])}",
             "category": "system_alert",

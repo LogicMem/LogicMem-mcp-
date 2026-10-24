@@ -287,6 +287,10 @@ def reconcile_dlq() -> dict[str, int]:
 def notify_memory_server(message: str, importance: int = 9) -> None:
     """Send an alert to the memory server so the watchdog surfaces it."""
     try:
+        cron_secret = os.environ.get("THEMIS_CRON_SECRET", "")
+        if not cron_secret:
+            print("alert-write-skipped: THEMIS_CRON_SECRET is not set", file=sys.stderr)
+            return
         body = json.dumps({
             "text": f"[WEBHOOK_DLQ] {message}",
             "category": "system_alert",
@@ -300,7 +304,7 @@ def notify_memory_server(message: str, importance: int = 9) -> None:
             method="POST",
             headers={
                 "Content-Type": "application/json",
-                "X-Cron-Secret": os.environ.get("THEMIS_CRON_SECRET", "themis-cron-2026"),
+                "X-Cron-Secret": cron_secret,
             },
         )
         urllib.request.urlopen(req, timeout=5)
