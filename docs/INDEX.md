@@ -2,40 +2,41 @@
 
 Welcome to the LogicMem documentation. Everything lives right here in this repo.
 
-## 📚 All Documentation
+## 📚 All documentation
 
-| Document | What It Covers |
+| Document | What it covers |
 |----------|---------------|
-| **[QUICKSTART.md](QUICKSTART.md)** | Install, get API key, first 10 lines of code — start here |
-| **[MCP-PROTOCOL.md](MCP-PROTOCOL.md)** | MCP protocol reference — endpoints and parameters |
-| **[A2A-PROTOCOL.md](A2A-PROTOCOL.md)** | Agent-to-agent memory sharing — how agents share context in real-time |
-| **[SECURITY.md](SECURITY.md)** | Encryption, CNSA 2.0, audit chain, API key management |
-| **[EXAMPLES.md](EXAMPLES.md)** | All code examples — log, recall, session, reason, verify, reflect, A2A |
+| **[QUICKSTART.md](QUICKSTART.md)** | Install, get an API key, first script — start here |
+| **[MCP-PROTOCOL.md](MCP-PROTOCOL.md)** | Hosted MCP server and local bridge: tools and parameters |
+| **[A2A-PROTOCOL.md](A2A-PROTOCOL.md)** | Agent-to-agent memory sharing |
+| **[SECURITY.md](SECURITY.md)** | Transport, authentication, audit chain |
+| **[EXAMPLES.md](EXAMPLES.md)** | Code examples — log, recall, session, reason, A2A, audit, errors |
+| **[EMBEDDING-FALLBACK.md](EMBEDDING-FALLBACK.md)** | How the server handles embedding-provider outages |
+| **[CONTRACT-TESTS.md](CONTRACT-TESTS.md)** | MCP contract test harness (`tests/contract_tests.py`) |
+| **[MONITORING.md](MONITORING.md)** | Synthetic monitor script (`monitoring/synthetic_monitor.py`) |
 | **[CONTRIBUTING.md](../CONTRIBUTING.md)** | How to contribute to this repo |
 
-## 🚦 Start Here
+## 🚦 Start here
 
 **New to LogicMem?** → Read [QUICKSTART.md](QUICKSTART.md) first.
 
-**Want to integrate with a framework?** → Check [EXAMPLES.md](EXAMPLES.md) for LangChain, AutoGPT, CrewAI, and more.
+**Want more code?** → [EXAMPLES.md](EXAMPLES.md). Framework integrations (LangChain, CrewAI, etc.) are not written yet; contributions welcome.
 
-**Building with MCP directly?** → [MCP-PROTOCOL.md](MCP-PROTOCOL.md) has everything.
+**Building with MCP directly?** → [MCP-PROTOCOL.md](MCP-PROTOCOL.md).
 
-## 📁 Repo Structure
+## 📁 Repo structure
 
 ```
-logicmem-mcp/
-├── README.md          ← You are here
-├── docs/
-│   ├── INDEX.md       ← This file
-│   ├── QUICKSTART.md  ← Start here
-│   ├── MCP-PROTOCOL.md
-│   ├── A2A-PROTOCOL.md
-│   ├── SECURITY.md
-│   └── EXAMPLES.md
-├── src/
-│   └── logicmem/      ← The Python SDK
-├── pyproject.toml
+LogicMem-mcp-/
+├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
 ├── LICENSE
-└── CONTRIBUTING.md
+├── pyproject.toml
+├── docs/                 ← this folder
+├── src/logicmem/         ← the Python SDK
+│   └── cli/              ← logicmem-server (local MCP bridge)
+├── tests/contract_tests.py
+├── monitoring/synthetic_monitor.py
+└── webhooks/dispatcher.py
 ```

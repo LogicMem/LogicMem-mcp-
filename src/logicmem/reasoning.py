@@ -72,18 +72,30 @@ class ReasoningEngine:
             question: The original question.
             answer: The proposed answer.
 
-        Returns:
-            dict with ``score`` (0-100) and ``factors`` breakdown.
+        Note:
+            The REST API has no confidence endpoint. This is available only
+            as the ``logicframe_confidence`` tool on the hosted MCP server
+            at https://mcp.logicmem.io/mcp, so this method always raises
+            ``NotImplementedError``.
         """
-        return self._client._post("/memory/confidence", {
-            "question": question,
-            "answer": answer,
-        })
+        raise NotImplementedError(
+            "confidence() is exposed via the hosted MCP server at "
+            "https://mcp.logicmem.io/mcp as the logicframe_confidence tool. "
+            "Call it from an MCP client with your lm_ API key."
+        )
 
     def trace(self, session_id: str = "") -> dict[str, Any]:
         """
         Retrieve a previous reasoning trace by session ID.
 
-        Useful for auditing AI reasoning steps.
+        Note:
+            The REST API has no trace endpoint. This is available only as
+            the ``logicframe_trace`` tool on the hosted MCP server at
+            https://mcp.logicmem.io/mcp, so this method always raises
+            ``NotImplementedError``.
         """
-        return self._client._post("/memory/trace", {"session_id": session_id})
+        raise NotImplementedError(
+            "trace() is exposed via the hosted MCP server at "
+            "https://mcp.logicmem.io/mcp as the logicframe_trace tool. "
+            "Call it from an MCP client with your lm_ API key."
+        )

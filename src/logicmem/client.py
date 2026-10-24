@@ -31,7 +31,7 @@ class LogicMem:
     Args:
         api_key: Your LogicMem API key.
         base_url: Base URL of the LogicMem server.
-                  Defaults to the production Hetzner server.
+                  Defaults to https://api.logicmem.io.
         timeout: Request timeout in seconds. Defaults to 30.
 
     Example:
@@ -41,8 +41,8 @@ class LogicMem:
         >>> results = memory.recall("user communication preferences")
     """
 
-    # Production endpoint. The SDK communicates with this URL over HTTPS.
-    # Override via the base_url argument to point at self-hosted LogicMem Open.
+    # Hosted LogicMem REST API. Override via the base_url argument
+    # (for example, to point at a staging server).
     DEFAULT_BASE_URL = "https://api.logicmem.io"
     DEFAULT_TIMEOUT = 30
 
@@ -85,8 +85,7 @@ class LogicMem:
             category: Category for the memory. Options: general, preference,
                       task, decision, contract, correction, interaction,
                       complaint. Defaults to "general".
-            importance: Importance on a scale of 1-10. Higher values are
-                        stored with stronger embeddings. Defaults to 7.
+            importance: Importance on a scale of 1-10. Defaults to 7.
             client_id: Client/agent identifier for multi-tenant isolation.
                        Defaults to "default".
             tags: Optional list of string tags for the memory.
@@ -160,16 +159,15 @@ class LogicMem:
         """
         Get a full context briefing for the current session.
 
-        Fires recall + sentiment + constraints + intelligence + gaps
-        in parallel and returns a comprehensive context summary.
+        Asks the server for a context summary for ``client_id``.
 
         Args:
             client_id: Client/agent identifier. Defaults to "default".
 
         Returns:
-            dict containing ``relationship_trend``, ``confidence``,
-            ``conversation_openers``, ``active_constraints``, and
-            ``critical_gaps``.
+            dict from the server. Fields may include ``relationship_trend``,
+            ``confidence``, ``conversation_openers``, ``active_constraints``
+            and ``critical_gaps``; use ``.get()`` when reading them.
         """
         payload = {"client_id": client_id}
         return self._post("/memory/session", payload)
@@ -181,7 +179,8 @@ class LogicMem:
         Returns:
             dict with ``status``, ``version``, and optionally ``latency_ms``.
         """
-        return self._post("/memory/health", {})
+        # /memory/health is a GET endpoint on the server.
+        return self._get("/memory/health")
 
     # -------------------------------------------------------------------------
     # Reasoning Engine
@@ -236,17 +235,15 @@ class LogicMem:
         Note:
             Available only via the hosted LogicMem MCP server at
             https://mcp.logicmem.io/mcp using the ``logicframe_verify``
-            tool, which requires a LogicMem Pro API key (lm_ prefix).
-            Use ``logicmem_a2a.MCPClient`` or hit the MCP endpoint
-            directly if you have such a key.
+            tool. This SDK method always raises ``NotImplementedError``;
+            call the MCP tool from your MCP client instead.
         """
         raise NotImplementedError(
             "verify() is exposed via the hosted MCP server at "
             "https://mcp.logicmem.io/mcp as the logicframe_verify tool. "
-            "It requires a LogicMem Pro API key (lm_ prefix). "
             "The open-source SDK does not have direct REST access to this "
             "capability. To use it, point your MCP client at "
-            "https://mcp.logicmem.io/mcp with an lm_ key."
+            "https://mcp.logicmem.io/mcp with your lm_ API key."
         )
 
     def reflect(
@@ -273,14 +270,13 @@ class LogicMem:
         Note:
             Available only via the hosted MCP server at
             https://mcp.logicmem.io/mcp as ``logicframe_reflect``,
-            which requires a LogicMem Pro API key (lm_ prefix).
+            This SDK method always raises ``NotImplementedError``.
         """
         raise NotImplementedError(
             "reflect() is exposed via the hosted MCP server at "
             "https://mcp.logicmem.io/mcp as the logicframe_reflect tool. "
-            "It requires a LogicMem Pro API key (lm_ prefix). "
             "The open-source SDK does not have direct REST access to this "
-            "capability."
+            "capability. Call it from an MCP client with your lm_ API key."
         )
 
     def intelligence(self, client_id: str = "default") -> dict[str, Any]:
@@ -299,12 +295,12 @@ class LogicMem:
         Note:
             Available only via the hosted MCP server at
             https://mcp.logicmem.io/mcp as ``logicframe_intelligence``,
-            which requires a LogicMem Pro API key (lm_ prefix).
+            This SDK method always raises ``NotImplementedError``.
         """
         raise NotImplementedError(
             "intelligence() is exposed via the hosted MCP server at "
             "https://mcp.logicmem.io/mcp as the logicframe_intelligence "
-            "tool. It requires a LogicMem Pro API key (lm_ prefix)."
+            "tool. Call it from an MCP client with your lm_ API key."
         )
 
     # -------------------------------------------------------------------------
@@ -402,66 +398,6 @@ class LogicMem:
             return resp.json()
         except Exception as e:
             raise LogicMemError(f"Failed to parse server response: {e}")
-
-    def _post_with_query(
-        self,
-        path: str,
-        query: dict[str, Any],
-        payload: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        """
-        POST with query-string params (for endpoints that take params in
-        the URL, not the body).
-        """
-        url = self.base_url + path
-        try:
-            resp = self._session.post(
-                url,
-                params=query,
-                json=payload or {},
-                timeout=self.timeout,
-            )
-        except requests.exceptions.Timeout as e:
-            raise NetworkError(f"Request timed out after {self.timeout}s: {e}")
-        except requests.exceptions.ConnectionError as e:
-            raise NetworkError(f"Connection failed: {e}")
-        except requests.exceptions.RequestException as e:
-            raise NetworkError(f"Request failed: {e}")
-
-        if resp.status_code == 401:
-            raise AuthenticationError("Invalid or missing API key", status_code=401)
-        if resp.status_code == 404:
-            raise MemoryNotFoundError(f"Resource not found: {path}", status_code=404)
-        if resp.status_code == 429:
-            raise RateLimitError("Rate limit exceeded", status_code=429)
-        if resp.status_code >= 500:
-            raise ServerError(f"Server error: {resp.status_code}", status_code=resp.status_code)
-        if resp.status_code >= 400:
-            try:
-                body = resp.json()
-                msg = body.get("error", body.get("message", resp.text))
-            except Exception:
-                msg = resp.text
-            raise ValidationError(msg, status_code=resp.status_code)
-
-        try:
-            return resp.json()
-        except Exception as e:
-            raise LogicMemError(f"Failed to parse server response: {e}")
-
-    def _post(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
-        """
-        Make a POST request to the LogicMem server.
-
-        Handles error mapping and response normalization.
-        """
-        """Make a GET request to the memory server."""
-        url = self.base_url + path
-        try:
-            r = self._session.get(url, params=params, timeout=self.timeout)
-        except requests.RequestException as e:
-            raise NetworkError(f"GET {path} failed: {e}")
-        return self._handle_response(r)
 
     def _post_with_query(
         self,

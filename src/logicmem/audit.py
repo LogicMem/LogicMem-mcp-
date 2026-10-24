@@ -26,12 +26,13 @@ class AuditChain:
         """
         Verify the integrity of the entire audit chain.
 
-        Confirms that no memory entries have been tampered with or deleted
-        since they were logged.
+        Asks the server to re-check the hash links in the audit chain, so
+        an edited, deleted or reordered entry shows up as a broken link.
 
         Returns:
-            dict with ``valid`` (bool), ``chain_length``,
-            ``last_hash``, and ``verified_at``.
+            dict from the server describing whether the chain is intact.
+            Print it or read fields with ``.get()``; exact field names are
+            set by the server.
         """
         # /memory/audit/verify is a GET endpoint on the server.
         return self._client._get("/memory/audit/verify", {})
@@ -43,10 +44,10 @@ class AuditChain:
         reason: str = "",
     ) -> dict[str, Any]:
         """
-        Log a correction — feeds the DPO training pipeline.
+        Log a correction (what the agent got wrong and what is right).
 
-        Every correction improves the underlying model. Use this when
-        the agent makes a mistake and you want to prevent it in future.
+        Corrections are stored on the server and queued for its DPO
+        training pipeline.
 
         Args:
             original: The incorrect statement or action.
@@ -54,7 +55,7 @@ class AuditChain:
             reason: Why the correction was made.
 
         Returns:
-            dict with ``correction_id``, ``logged_at``.
+            dict from the server.
         """
         payload = {
             "original": original,
@@ -69,10 +70,6 @@ class AuditChain:
 
         Returns how many correction pairs are ready for training
         and the health of the training pipeline.
-
-        Note: As of v0.1.1 the production server reports 0 pairs ready
-        until enough corrections are logged. The endpoint is live;
-        the data accumulates with usage.
         """
         return self._client._post("/memory/dpo/stats", {})
 
@@ -90,6 +87,7 @@ class AuditChain:
         Check the health of the audit chain subsystem.
 
         Returns:
-            dict with ``status``, ``chain_height``, ``last_append``.
+            dict from the server.
         """
-        return self._client._post("/memory/audit", {})
+        # /memory/audit is a GET endpoint on the server.
+        return self._client._get("/memory/audit", {})

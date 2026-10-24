@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logicmem"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python SDK and MCP connector for LogicMem: tamper-evident records of what your AI agents did."
 readme = "README.md"
 license = {text = "MIT"}
@@ -45,7 +45,7 @@ cli = [
 Homepage = "https://logicmem.io"
 Documentation = "https://logicmem.io/quickstart/"
 Repository = "https://github.com/LogicMem/LogicMem-mcp-"
-Changelog = "https://github.com/LogicMem/LogicMem-mcp-/releases"
+Changelog = "https://github.com/LogicMem/LogicMem-mcp-/blob/main/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/LogicMem/LogicMem-mcp-/issues"
 
 [tool.setuptools.packages.find]

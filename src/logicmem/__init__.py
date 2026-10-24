@@ -12,15 +12,15 @@ Usage:
     memory.log("User prefers Telegram for urgent messages", category="preference")
     results = memory.recall("user communication preferences")
 
-Tier availability:
-    - Free tier (mk_* keys): log, recall, reason, audit, A2A — all work.
-    - Pro tier (lm_* keys): log, recall, reason, audit, A2A + verify, reflect,
-      intelligence. Methods `verify()`, `reflect()`, `intelligence()` on a
-      free-tier key raise `NotImplementedError` directing you to upgrade.
+What the SDK covers:
+    - log, recall, session, reason, health, the audit chain and A2A sharing
+      go to the LogicMem REST API (https://api.logicmem.io).
+    - verify(), reflect() and intelligence() always raise
+      NotImplementedError: those run only as logicframe_verify,
+      logicframe_reflect and logicframe_intelligence tools on the hosted
+      MCP server at https://mcp.logicmem.io/mcp.
 
-Resilience:
-    - Embedding calls run server-side via a 3-tier fallback chain
-      (Cohere → Ollama local → TF-IDF). See docs/EMBEDDING-FALLBACK.md.
+API keys (lm_...) are issued to pilot teams: https://logicmem.io/design-partner/
 """
 
 from logicmem.client import LogicMem
@@ -30,9 +30,11 @@ from logicmem.exceptions import (
     MemoryNotFoundError,
     RateLimitError,
     ServerError,
+    ValidationError,
+    NetworkError,
 )
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __all__ = [
     "LogicMem",
@@ -41,4 +43,6 @@ __all__ = [
     "MemoryNotFoundError",
     "RateLimitError",
     "ServerError",
+    "ValidationError",
+    "NetworkError",
 ]
