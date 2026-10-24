@@ -1,6 +1,6 @@
 # LogicMem: prove what your AI did
 
-Tamper-evident, hash-chained records of what your AI agents did and relied on, so you can show an auditor that nothing was changed. This is the open-source SDK and MCP connector. Records are kept and verified on the LogicMem server, in our cloud.
+Tamper-evident, hash-chained records of what your AI agents did and relied on, so you can show an auditor whether anything was changed. This is the open-source SDK and MCP connector. Records are kept and verified on the LogicMem server, in our cloud.
 
 > Observability tells you what broke. LogicMem shows what happened.
 
@@ -10,32 +10,13 @@ Tamper-evident, hash-chained records of what your AI agents did and relied on, s
 
 ---
 
-## The Problem
+## The problem
 
-AI agents are **stateless by design**. Every session starts from scratch:
+Six months from now, an auditor asks what your AI agent did and what it relied on. Logs can be edited, and nobody can prove they weren't.
 
-```
-Session 1                              Session 2
-──────────                             ──────────
-User: "I'm building a SaaS"     →     User: "How's my SaaS coming?"
-Agent: "Tell me more..."              Agent: "I don't know anything
-...                                   about your SaaS"
-[Session ends]                        
-                                      Agent forgot EVERYTHING.
-```
+## What LogicMem gives you
 
-This is fine for demos. It's catastrophic for production AI workflows.
-
-## The Solution
-
-LogicMem gives your AI agent **persistent memory** — connect any MCP client
-and get:
-
-- 🔍 **Persistent Memory** — Store and search memories across sessions
-- 🧠 **Reasoning Engine** — Multi-step reasoning that consults memory
-- 🔗 **A2A Memory Sharing** — Agents share context in real-time
-- 📋 **Tamper-evident Audit Trail** — Hash-chained, verifiable history
-- 🎙️ **Voice Memory** — Caller history for VAPI, Retell AI, Bland AI
+A tamper-evident, hash-chained record of what your agents did, so you can show whether anything was changed. Shared memory across vendors comes with it.
 
 ---
 
