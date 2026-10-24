@@ -5,7 +5,7 @@
 
 ## What It Does
 
-Probes every public LogicMem endpoint **the way real customer traffic hits it**, on a 60-second loop:
+Probes these LogicMem endpoints the way client traffic hits them. It runs once per invocation; schedule it with cron (for example every minute):
 
 | Surface | Probes |
 |---------|--------|
@@ -22,15 +22,11 @@ For each probe the monitor:
 - Surfaces drift (state flip, latency > 2x, audit chain degradation)
 - Writes alerts to memory server via `/memory/log` so the watchdog surfaces them
 
-## What It Caught Already
-
-During build-out on 2026-06-22, the synthetic monitor caught Qdrant
-flapping between `up` → `down` between two consecutive probes — exactly
-the failure mode the monitor was built to detect before customers see it.
-
 ## Running
 
-Cron (Hetzner): every minute.
+The script in this repo is `monitoring/synthetic_monitor.py`. On the LogicMem
+server it is deployed as `/root/LogicFrame/scripts/synthetic_monitor.py` and
+needs `THEMIS_CRON_SECRET` set. Example cron entry (every minute):
 
 ```cron
 * * * * * /usr/bin/python3 /root/LogicFrame/scripts/synthetic_monitor.py >> /var/log/synthetic_monitor_cron.log 2>&1
@@ -65,7 +61,7 @@ qdrant's `/readyz`). `headers` for auth, `jsonrpc_body` for MCP.
 
 ## Authentication
 
-Memory server probes use `X-Cron-Secret: <YOUR_CRON_SECRET>` for admin
+Memory server probes use `X-Cron-Secret: $THEMIS_CRON_SECRET` for admin
 read access (memory/stats + memory/audit/verify). MCP `tools/call`
 probes use `X-Agent-ID: themis-synthetic-monitor` so the server can
 attribute and rate-limit synthetic traffic separately from real users.

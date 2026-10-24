@@ -14,6 +14,7 @@
 6. [Session Context Briefing](#6-session-context-briefing)
 7. [DPO Correction Pipeline](#7-dpo-correction-pipeline)
 8. [Error Handling](#8-error-handling)
+9. [Full Agent Loop Example](#9-full-agent-loop-example)
 
 ---
 
@@ -69,7 +70,7 @@ result = memory.log(
     tags=["q3", "proposal", "urgent"],
     client_id="ed_creed",
 )
-print(f"Stored: {result['entry_id']}")
+print(f"Stored: {result.get('entry_id')}")
 
 # Later: recall the task
 tasks = memory.recall(
@@ -82,14 +83,11 @@ for t in tasks:
         print(t["text"])
 ```
 
-### Custom API Key Header (for multi-tenant setups)
+### One key per tenant
 
 ```python
-# Use a specific API key for a tenant
-memory = LogicMem(
-    api_key="tenant-specific-key",
-    base_url="https://api.your-memory-server.com",
-)
+# Use a separate API key (and client_id) per tenant
+memory = LogicMem(api_key=os.environ["ACME_LOGICMEM_API_KEY"])
 
 result = memory.log(
     text="Acme Corp renewed their contract.",
@@ -119,66 +117,17 @@ print(f"Confidence: {answer.get('confidence')}")
 print(f"Answer: {answer.get('answer')}")
 print("\nReasoning trace:")
 for step in answer.get("steps", []):
-    print(f"  Step {step['step']}: {step['thought']}")
-    if step.get("memory_consulted"):
-        print(f"    Memory consulted: {step['memory_consulted']}")
+    print(f"  {step}")
 ```
 
-### Verify a Claim
+### Verify, reflect, confidence
 
-> **Pro tier only.** The SDK will raise `NotImplementedError` if you call this from a free-tier key.
-> For free tier, use `memory.reason()` with `mode="deep"` and a verification-flavored question.
-
-```python
-# Pro tier (lm_* API key) — hosted MCP at mcp.logicmem.io/mcp
-verdict = memory.verify(
-    claim="The user prefers email for urgent messages."
-)
-
-print(f"Verdict: {verdict['verdict']}")  # supported / contradicted / inconclusive
-for entry in verdict.get("evidence", []):
-    print(f"  Evidence: {entry['text']}")
-    print(f"  Created: {entry['created_at']}")
-```
-
-### Self-Reflection Before Answering
-
-> **Pro tier only.** The SDK will raise `NotImplementedError` if you call this from a free-tier key.
-
-```python
-# Pro tier (lm_* API key) — hosted MCP at mcp.logicmem.io/mcp
-draft = "You should build the mobile app first because it's a growing market."
-
-review = memory.reflect(
-    draft_answer=draft,
-    question="What should we prioritize first — mobile or web?",
-    memory_query="the user solo founder constraints",
-)
-
-print(f"Reflection score: {review['score']}/100")
-print(f"Verdict: {review['verdict']}")  # needs_revision / accepted
-print(f"Gaps: {review.get('gaps', [])}")
-print(f"Suggestions: {review.get('suggestions', [])}")
-```
-
-### Confidence Scoring
-
-```python
-from logicmem import LogicMem
-from logicmem.reasoning import ReasoningEngine
-
-memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
-reasoner = ReasoningEngine(memory)
-
-score = reasoner.confidence(
-    question="What is the user'''s preferred communication channel?",
-    answer="Telegram, because the user prefers urgent messages via Telegram.",
-)
-
-print(f"Confidence score: {score['score']}/100")
-for factor in score.get("factors", []):
-    print(f"  {factor['name']}: {factor['value']}")
-```
+`memory.verify()`, `memory.reflect()`, `memory.intelligence()` and
+`ReasoningEngine.confidence()` / `.trace()` always raise `NotImplementedError`
+in this SDK. Those features run only as tools on the hosted MCP server
+(`logicframe_verify`, `logicframe_reflect`, `logicframe_intelligence`,
+`logicframe_confidence`, `logicframe_trace`). Call them from an MCP client
+connected to `https://mcp.logicmem.io/mcp`; see [MCP-PROTOCOL.md](MCP-PROTOCOL.md).
 
 ---
 
@@ -188,6 +137,7 @@ for factor in score.get("factors", []):
 
 ```python
 # In the RESEARCHER agent:
+import os
 from logicmem.a2a import A2AClient
 
 researcher_a2a = A2AClient(
@@ -219,7 +169,11 @@ researcher_a2a.share_memory(
 
 ```python
 # In the EXECUTOR agent:
+import os
+from logicmem import LogicMem
 from logicmem.a2a import A2AClient
+
+memory = LogicMem(api_key=os.environ["EXECUTOR_API_KEY"])
 
 executor_a2a = A2AClient(
     api_key=os.environ["EXECUTOR_API_KEY"],
@@ -227,12 +181,12 @@ executor_a2a = A2AClient(
 )
 
 # Check for new context from the researcher
-new_memories = executor_a2a.sync()
+new_memories = executor_a2a.sync(client_id="project-x")
 for entry in new_memories:
-    print(f"From {entry['from_agent_id']}: {entry['text']}")
-    # Store it in local memory for reference
+    print(entry.get("text"))
+    # Keep a copy in this agent's own memory
     memory.log(
-        text=f"[via A2A from {entry['from_agent_id']}]: {entry['text']}",
+        text=f"[via A2A]: {entry.get('text')}",
         category="context",
         source="a2a",
     )
@@ -249,7 +203,7 @@ for agent in agents:
     status_emoji = {"online": "🟢", "busy": "🟡", "away": "⚫"}.get(
         agent.get("status"), "❓"
     )
-    print(f"{status_emoji} {agent['agent_id']} ({agent.get('name', '')})")
+    print(f"{status_emoji} {agent.get('agent_id')} ({agent.get('name', '')})")
 ```
 
 ---
@@ -257,28 +211,19 @@ for agent in agents:
 ## 4. Audit Chain Verification
 
 ```python
+import os
+from logicmem import LogicMem
 from logicmem.audit import AuditChain
 
+memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 audit = AuditChain(memory)
 
-# Verify the full audit chain
+# Ask the server to re-check the whole hash chain and print its report
 result = audit.verify()
-if result["valid"]:
-    print(f"✅ Audit chain intact. {result['chain_length']} entries.")
-    print(f"   Last hash: {result['last_hash'][:16]}...")
-else:
-    print("❌ Audit chain integrity violation detected!")
+print(result)
 
-# Weekly automated audit
-import schedule
-
-def weekly_audit():
-    result = audit.verify()
-    if not result["valid"]:
-        # Send alert
-        print("ALERT: Audit chain integrity violation!")
-
-# Note: schedule is a third-party lib, or use cron/APScheduler
+# Run this on a schedule (cron, APScheduler, etc.) and alert if the
+# report says the chain is not intact.
 ```
 
 ---
@@ -327,8 +272,9 @@ def start_session(client_id: str):
 
     brief = memory.session(client_id=client_id)
 
+    # Field names are set by the server; read them with .get()
     print(f"Relationship trend: {brief.get('relationship_trend', 'unknown')}")
-    print(f"Confidence: {brief.get('confidence', 0)}%")
+    print(f"Confidence: {brief.get('confidence', 'unknown')}")
     print()
 
     print("Active constraints:")
@@ -353,10 +299,13 @@ start_session("ed_creed")
 
 ## 7. DPO Correction Pipeline
 
-### Log a Correction (Improves the Model)
+### Log a Correction
 
 ```python
-# When the agent makes a mistake, log the correction
+# When the agent makes a mistake, log the correction.
+# It is stored on the server and queued for its DPO training pipeline.
+from logicmem.audit import AuditChain
+
 audit = AuditChain(memory)
 
 audit.log_correction(
@@ -369,7 +318,7 @@ audit.log_correction(
 
 # Check how many corrections are queued
 stats = audit.dpo_stats()
-print(f"Correction pairs ready for training: {stats.get('ready_count', 0)}")
+print(stats)
 ```
 
 ---
@@ -446,14 +395,11 @@ result = log_with_retry(memory, "Important memory that needs to be stored")
 
 ```python
 """
-Full agent loop that uses memory at every step.
-This is what a production AI agent looks like with LogicMem.
+Agent loop sketch that uses memory at every step.
 """
 
 import os
 from logicmem import LogicMem
-from logicmem.exceptions import RateLimitError
-import time
 
 def agent_loop(user_id: str, initial_prompt: str):
     memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
@@ -479,7 +425,7 @@ def agent_loop(user_id: str, initial_prompt: str):
         )
 
         context_text = "\n".join(
-            f"- {m['text']}" for m in context_memories
+            f"- {m.get('text', '')}" for m in context_memories
         )
 
         # Construct prompt with memory context

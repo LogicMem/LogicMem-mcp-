@@ -1,7 +1,7 @@
 """
 A2A — Agent-to-Agent Memory Sharing
 ====================================
-Real-time memory sharing between AI agents via the A2A protocol.
+Memory sharing between AI agents through the LogicMem server.
 
 Use this module when building multi-agent systems where agents need
 to share context without a central orchestrator.
@@ -16,16 +16,16 @@ from logicmem.exceptions import ValidationError
 
 class A2AClient:
     """
-    Agent-to-Agent (A2A) client for real-time memory sharing.
+    Agent-to-Agent (A2A) client for memory sharing.
 
-    Register your agent in the A2A registry and share memories
-    with other agents in real-time.
+    Register your agent in the registry, write shared memories, and poll
+    for memories other agents shared.
 
     Args:
         api_key: Your LogicMem API key.
         agent_id: Unique identifier for this agent (e.g., "claude-agent").
-        base_url: Base URL of the A2A relay server.
-                  Defaults to the production server.
+        base_url: Base URL of the LogicMem REST API.
+                  Defaults to https://api.logicmem.io.
     """
 
     def __init__(
@@ -62,7 +62,7 @@ class A2AClient:
             client_id: Organization/client ID for agent grouping.
 
         Returns:
-            dict with ``agent_id``, ``registered_at``, and ``endpoint``.
+            dict from the server.
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
@@ -102,8 +102,10 @@ class A2AClient:
         Args:
             status: Agent status — "online", "busy", or "away".
 
+            client_id: Client/organization ID. Defaults to "default".
+
         Returns:
-            dict with ``acknowledged`` and ``server_time``.
+            dict from the server.
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
@@ -134,13 +136,15 @@ class A2AClient:
         client_id: str = "default",
     ) -> dict[str, Any]:
         """
-        Share a memory entry with another agent in real-time.
+        Share a memory entry with another agent.
 
         The target agent can retrieve shared memories via ``receive_memory()``.
 
         Args:
             target_agent_id: The recipient agent's ID.
-            memory: The memory content to share (at minimum, ``text`` key).
+            memory: The memory content to share (at minimum, a ``text`` key).
+                    ``category`` and ``importance`` keys in this dict are
+                    used when present.
             category: Category of the shared memory. Defaults to "general".
             importance: Importance level 1-10. Defaults to 7.
             is_private: If True, only the target agent can see this memory.
@@ -148,7 +152,7 @@ class A2AClient:
             client_id: Client/organization ID. Defaults to "default".
 
         Returns:
-            dict with ``share_id``, ``shared_at``, and ``delivered``.
+            dict from the server.
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
@@ -157,8 +161,8 @@ class A2AClient:
             "agent_id": self.agent_id,
             "target_agent_id": target_agent_id,
             "text": memory.get("text", str(memory)),
-            "category": category,
-            "importance": importance,
+            "category": memory.get("category", category),
+            "importance": memory.get("importance", importance),
             "is_private": is_private,
             "client_id": client_id,
         }
@@ -180,8 +184,7 @@ class A2AClient:
             limit: Maximum number of shared memories to return.
 
         Returns:
-            List of shared memory entries with ``share_id``, ``from_agent_id``,
-            ``text``, ``shared_at``.
+            List of shared memory entries (dicts from the server).
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
@@ -195,28 +198,50 @@ class A2AClient:
             return result
         return result.get("entries", [])
 
-    def sync(self, since_timestamp: str = "") -> list[dict[str, Any]]:
+    def sync(
+        self,
+        since_timestamp: str = "",
+        client_id: str = "default",
+        limit: int = 50,
+    ) -> list[dict[str, Any]]:
         """
-        Check for new shared memories from OTHER agents since last sync.
+        Return shared memories from OTHER agents, optionally since a time.
 
-        Excludes memories shared by this agent (avoiding echo).
+        Reads the same shared-updates endpoint as ``receive_memory()`` and
+        drops entries written by this agent. When ``since_timestamp`` is set,
+        entries whose timestamp is older are dropped too.
 
         Args:
-            since_timestamp: ISO timestamp of last sync. Omit for all entries.
+            since_timestamp: ISO 8601 timestamp of your last sync. Omit for all.
+            client_id: Client/organization ID. Defaults to "default".
+            limit: Maximum number of entries to fetch. Defaults to 50.
 
         Returns:
-            List of new shared memory entries.
+            List of shared memory entries (dicts from the server).
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)
-        payload = {
+        params: dict[str, Any] = {
             "agent_id": self.agent_id,
-            "since_timestamp": since_timestamp,
+            "client_id": client_id,
+            "limit": limit,
         }
-        result = client._post("/memory/federation/query", payload)
-        if isinstance(result, list):
-            return result
-        return result.get("entries", [])
+        if since_timestamp:
+            params["since_timestamp"] = since_timestamp
+        result = client._get("/memory/shared/updates", params)
+        entries = result if isinstance(result, list) else result.get("entries", [])
+        out = []
+        for e in entries:
+            if not isinstance(e, dict):
+                continue
+            author = e.get("from_agent_id") or e.get("agent_id")
+            if author == self.agent_id:
+                continue
+            ts = e.get("shared_at") or e.get("created_at") or e.get("timestamp")
+            if since_timestamp and isinstance(ts, str) and ts < since_timestamp:
+                continue
+            out.append(e)
+        return out
 
     def write_shared(
         self,
@@ -236,12 +261,12 @@ class A2AClient:
             text: The memory text to share.
             category: Category for the shared memory.
             importance: Importance level 1-10.
-            is_private: If True, only visible to this agent.
+            is_private: Sent to the server as the entry's private flag.
             tags: Optional tags.
             client_id: Client/organization ID.
 
         Returns:
-            dict with ``entry_id`` and ``shared_at``.
+            dict from the server.
         """
         from logicmem.client import LogicMem
         client = LogicMem(api_key=self.api_key, base_url=self.base_url)

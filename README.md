@@ -12,7 +12,7 @@ Tamper-evident, hash-chained records of what your AI agents did and relied on, s
 
 ## The problem
 
-Six months from now, an auditor asks what your AI agent did and what it relied on. Logs can be edited, and nobody can prove they weren't.
+Six months from now, an auditor asks what your AI agent did and what it relied on. Ordinary logs can be edited, and nobody can prove they weren't.
 
 ## What LogicMem gives you
 
@@ -20,57 +20,52 @@ A tamper-evident, hash-chained record of what your agents did, so you can show w
 
 ---
 
-## Open Core Model
+## What is in this repo
 
-This repo is the **LogicMem SDK** — the open-source client for connecting AI agents to the LogicMem memory fabric. The SDK is fully open (MIT licensed). The **reasoning engine and audit chain** run on LogicMem's private server.
+- **Python SDK** (`logicmem`, MIT licensed): a client for the LogicMem REST API at `https://api.logicmem.io`.
+- **Local MCP server** (`logicmem-server`): a stdio bridge that serves `logicmem_*` tools to MCP clients.
+- **Docs** for the hosted MCP server at `https://mcp.logicmem.io/mcp`, which serves `logicframe_*` tools.
 
-| | **Open Source (This Repo)** | **LogicMem Pro / Enterprise** |
-|---|---|---|
-| **SDK / Client** | ✅ Fully open (MIT) | ✅ Included |
-| **Persistent Memory** | ✅ Free tier | ✅ Unlimited |
-| **A2A Memory Sharing** | ✅ Basic | ✅ Advanced governance + cross-org |
-| **Reasoning Engine** | ✅ API call (server-powered) | ✅ Deep / Exhaustive modes |
-| **Audit Trail** | ✅ Tamper-evident, hash-chained ledger (verify via API or MCP) | ✅ Same ledger + CNSA 2.0 |
-| **Voice Agent Memory** | ✅ | ✅ |
-| **Deployment** | Cloud (logicmem.io) | Cloud, on-prem, or air-gap |
-| **Support** | Community | Dedicated + SLA |
+The LogicMem server itself (storage, reasoning engine, audit chain) is not in this repo; it runs in LogicMem's cloud.
 
-**Why this model?** The SDK gives developers the steering wheel. The LogicMem server is the engine. You get a great developer experience — and your AI gets production-grade memory infrastructure without building it yourself.
+**Access:** API keys are issued to pilot teams. Pilots run 30 days, from $500/mo: [logicmem.io/design-partner](https://logicmem.io/design-partner/).
 
 ---
 
 ## Install
 
+Use a virtual environment (works on macOS, Linux and Windows):
+
 ```bash
-# Install the Python SDK (library only)
-pip install --break-system-packages git+https://github.com/LogicMem/LogicMem-mcp-.git
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
-# Install with CLI tools (includes logicmem-server for OpenClaw MCP):
-pip install --break-system-packages "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
+# SDK only
+pip install git+https://github.com/LogicMem/LogicMem-mcp-.git
 
-# Linux/Ubuntu (no flag needed):
+# SDK + local MCP server (logicmem-server)
 pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 ```
 
+> Install from GitHub as shown. The `logicmem` package on PyPI is an older 0.1.1 build with out-of-date links.
+
 ---
 
-## Quick Start (< 5 minutes)
+## Quick start
 
-### 1. Get an API Key
+### 1. Get an API key
 
-Sign up at **[logicmem.io/signup](https://logicmem.io/signup)** and copy your `lm_` key from the [dashboard](https://logicmem.io/dashboard).
+Keys start with `lm_`. They are issued to pilot teams while self-serve sign-up is being rebuilt: request one at **[logicmem.io/design-partner](https://logicmem.io/design-partner/)**. Treat the key like a password.
 
-Rate limits depend on your plan; requests over the limit return HTTP 429 (`RateLimitError` in the SDK).
-
-> ⚠️ **macOS users:** If you see a `PEP 668` error during install, rerun with `--break-system-packages` flag (see Install section above).
+Requests over your rate limit return HTTP 429 (`RateLimitError` in the SDK).
 
 ### 2. Use the Python SDK
 
 ```python
+import os
 from logicmem import LogicMem
 
-# Initialize the client
-memory = LogicMem(api_key="lm_your_api_key")
+memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 
 # Store a memory
 memory.log(
@@ -81,56 +76,35 @@ memory.log(
 
 # Search memories
 results = memory.recall(query="user communication preferences")
-print(results[0]["text"])
-# → "User prefers urgent messages via Telegram, not email."
+for r in results:
+    print(r.get("text"))
 
-# Store a task with context
-memory.log(
-    text="Review Q3 proposal by Friday. Priority: cost breakdown first, then timeline.",
-    category="task",
-    importance=9,
-)
-
-# Session briefing — full context at start of session
-brief = memory.session(client_id="ed_creed")
-print(brief["confidence"])   # How confident is the agent about this user?
-print(brief["relationship_trend"])  # improving / declining / stable
+# Session briefing (a context summary from the server)
+brief = memory.session(client_id="default")
+print(brief)
 ```
 
-### 3. Reasoning Engine
+### 3. Reasoning engine
 
 ```python
-# Multi-step reasoning with memory at each step
 answer = memory.reason(
     question="Should we prioritize the mobile app or web dashboard first?",
     context="User is a solo founder with limited engineering bandwidth.",
     mode="deep",  # fast / deep / exhaustive
 )
-print(answer["answer"])
-print(answer["confidence"])
-
-# Verify a claim against stored facts
-verdict = memory.verify("User has a budget of $50k for this project")
-print(verdict["verdict"])   # supported / contradicted / inconclusive
-print(verdict["evidence"])  # supporting entries
-
-# Self-critique before committing to an answer
-review = memory.reflect(
-    draft_answer="You should build the web dashboard first.",
-    question="What should we prioritize first?",
-    memory_query="user preferences priorities",
-)
-print(review["score"])      # 0-100
-print(review["gaps"])       # weaknesses in the answer
+print(answer.get("answer"))
+print(answer.get("confidence"))
 ```
 
-### 4. Agent-to-Agent (A2A) Memory Sharing
+`verify()`, `reflect()` and `intelligence()` exist on the client but always raise `NotImplementedError`: those features run only as MCP tools (`logicframe_verify`, `logicframe_reflect`, `logicframe_intelligence`) on the hosted server. Call them from an MCP client (see below).
+
+### 4. Agent-to-agent (A2A) memory sharing
 
 ```python
+import os
 from logicmem.a2a import A2AClient
 
-# Agent A: Share a memory with Agent B
-a2a = A2AClient(api_key="lm_agent_a_key", agent_id="agent-researcher")
+a2a = A2AClient(api_key=os.environ["LOGICMEM_API_KEY"], agent_id="agent-researcher")
 
 # Register this agent
 a2a.register(name="Researcher Agent", agent_type="agent", client_id="team-alpha")
@@ -141,35 +115,32 @@ a2a.share_memory(
     memory={"text": "User needs Q3 report by Friday. High priority."},
     category="task",
     importance=9,
+    client_id="team-alpha",
 )
 
-# Check for new shared memories from other agents
-shared = a2a.sync()
-for entry in shared:
-    print(f"From {entry['from_agent_id']}: {entry['text']}")
+# In the other agent: fetch memories shared by other agents
+executor = A2AClient(api_key=os.environ["LOGICMEM_API_KEY"], agent_id="agent-executor")
+for entry in executor.sync(client_id="team-alpha"):
+    print(entry.get("text"))
 ```
 
-### 5. Verify Audit Chain
+### 5. Verify the audit chain
 
 ```python
 from logicmem.audit import AuditChain
 
-audit = AuditChain(memory)  # pass LogicMem client
+audit = AuditChain(memory)  # pass a LogicMem client
 
-# Verify the audit chain has not been tampered with
-result = audit.verify()
-print(result["valid"])  # True if chain integrity is intact
+# Ask the server to re-check the hash chain
+print(audit.verify())
 
-# Log a correction (improves the model)
+# Log a correction (stored on the server and queued for its training pipeline)
 audit.log_correction(
     original="The user prefers email for urgent messages.",
     corrected="The user prefers Telegram for urgent messages, not email.",
-    reason="User explicitly stated Telegram in call on 2026-06-10.",
+    reason="User explicitly stated Telegram in a call.",
 )
-
-# Check DPO training pipeline stats
-stats = audit.dpo_stats()
-print(f"Correction pairs ready: {stats['ready_count']}")
+print(audit.dpo_stats())
 ```
 
 ---
@@ -179,37 +150,27 @@ print(f"Correction pairs ready: {stats['ready_count']}")
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                      Your AI Agent                           │
-│              (Claude, GPT, Any MCP Client)                    │
+│              (Claude, GPT, any MCP client)                   │
 └──────────────────────────────────────────────────────────────┘
-                             │ MCP
-                             ▼
-┌──────────────────────────────────────────────────────────────┐
-│                   LogicMem MCP Server                        │
-│               mcp.logicmem.io                              │
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────┐ │
-│  │   Memory    │ │  Reasoning │ │    A2A     │ │ Audit  │ │
-│  │   Tools     │ │   Engine   │ │   Relay    │ │ Chain  │ │
-│  └────────────┘ └────────────┘ └────────────┘ └────────┘ │
-└──────────────────────────────────────────────────────────────┘
-                             │
-           ┌─────────────────┼─────────────────┐
-           ▼                 ▼                 ▼
-    ┌────────────┐   ┌────────────┐   ┌────────────┐
-    │  Memory    │   │   Memory   │   │   Audit   │
-    │  Storage   │   │   Index    │   │   Ledger  │
-    │(Supabase)  │   │ (Qdrant)   │   │(Hash Chain)│
-    └────────────┘   └────────────┘   └────────────┘
+          │ MCP (hosted or local stdio)        │ Python SDK
+          ▼                                    ▼
+┌───────────────────────────┐      ┌───────────────────────────┐
+│ Hosted MCP server         │      │ REST API                  │
+│ mcp.logicmem.io/mcp       │      │ api.logicmem.io           │
+│ logicframe_* tools        │      │ (also used by             │
+│                           │      │  logicmem-server)         │
+└───────────────────────────┘      └───────────────────────────┘
+          └──────────────► LogicMem server ◄──────────┘
+                 memory · reasoning · A2A · audit chain
 ```
 
 ---
 
-## OpenClaw Integration
+## Connect an MCP client
 
-> LogicMem works with [OpenClaw](https://github.com/openclaw/openclaw) over MCP.
+### Option A: hosted MCP server URL
 
-### Option A — Direct MCP Server URL (Simplest, 1 line of config)
-
-Add LogicMem as a **streamable-http** MCP server in your OpenClaw config (`~/.openclaw/openclaw.json`):
+Add LogicMem as a **streamable-http** MCP server. Example for OpenClaw (`~/.openclaw/openclaw.json`):
 
 ```json
 {
@@ -227,21 +188,18 @@ Add LogicMem as a **streamable-http** MCP server in your OpenClaw config (`~/.op
 }
 ```
 
-> **Note:** The `streamable-http` transport is the modern MCP standard (2024-11-05).
-> The server at `mcp.logicmem.io` supports both `streamable-http` and legacy `sse`.
+Other clients (Claude Code, Cursor and similar) use the same URL and header in their own MCP settings.
 
-### Option B — Local stdio Server (For power users with multiple MCP servers)
+### Option B: local stdio server
 
-Some OpenClaw users have **multiple MCP servers** configured — a mix of stdio (local programs) and HTTP/SSE (remote servers). OpenClaw has a known limitation where it can't freely mix stdio and SSE servers in the same config.
-
-**The fix:** Use our local stdio server as a bridge. Install it via pip:
+If your client works better with a local command, install the CLI extra:
 
 ```bash
-pip install --break-system-packages \
-  "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
+pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
+logicmem-server --help
 ```
 
-Then configure OpenClaw to use the local stdio command:
+Then point your client at the `logicmem-server` command:
 
 ```json
 {
@@ -259,112 +217,81 @@ Then configure OpenClaw to use the local stdio command:
 }
 ```
 
-This approach:
-- Works alongside **any** other MCP server (stdio or HTTP)
-- No SSE/stdio mixing conflict
-- Installs in seconds via pip
-
-### Quick Test — Verify Your Setup
-
-After configuring, test that LogicMem is connected:
+### Check your setup
 
 ```bash
-# Check if the MCP server is recognized
-openclaw mcp list
-
-# Or test directly in a conversation with your agent:
-# "What is my name?" (should recall from memory if previously stored)
+openclaw mcp list   # LogicMem should be listed
 ```
 
-### For Specific OpenClaw Agents
+Then ask your agent to store a note with `logicframe_memory_log` (hosted) or `logicmem_memory_log` (local) and recall it.
 
-| Agent | Recommended Setup | Config Type |
-|-------|-----------------|-------------|
-| **Themis** (any OpenClaw agent) | Direct URL | `streamable-http` config |
-| **Hermes** | Direct URL or stdio pip | Same as above |
-| **Claude Code** | Direct URL | `streamable-http` in Claude Code config |
-| **Custom OpenClaw agents** | Direct URL | Same as above |
+### Environment variables (for `logicmem-server`)
 
-### Environment Variables
+The Python SDK does not read these; pass `api_key` and `base_url` to `LogicMem(...)` instead.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LOGICMEM_API_KEY` | — | Your API key (`lm_xxx`) from the [LogicMem dashboard](https://logicmem.io/dashboard) |
-| `LOGICMEM_SERVER_URL` | `https://api.logicmem.io` | Override the LogicMem server URL |
+| `LOGICMEM_API_KEY` | — | Your API key (`lm_...`), issued to [pilot teams](https://logicmem.io/design-partner/) |
+| `LOGICMEM_SERVER_URL` | `https://api.logicmem.io` | Override the LogicMem REST API URL |
 | `LOGICMEM_CLIENT_ID` | `default` | Default client_id for memory operations |
 | `LOGICMEM_TIMEOUT` | `30` | HTTP request timeout in seconds |
 
 ---
 
-## MCP Protocol Reference
+## MCP reference
 
-The server accepts JSON-RPC 2.0 requests over HTTPS.
+**Hosted MCP endpoint:** `https://mcp.logicmem.io/mcp` (JSON-RPC over HTTPS POST)
+**REST API base URL:** `https://api.logicmem.io`
 
-**MCP Endpoint:** `https://mcp.logicmem.io/mcp`
-**REST API Base URL:** `https://api.logicmem.io`
+**Authentication:** `Authorization: Bearer <api_key>`. `initialize` and `tools/list` are public; `tools/call` requires a key.
 
-**Authentication:** `Authorization: Bearer <api_key>` header required for write operations.
+> **Tool name prefix:** the hosted server serves `logicframe_*` tool names
+> (e.g. `logicframe_memory_log`, `logicframe_memory_recall`). The local pip
+> server (`logicmem-server`) serves `logicmem_*` tool names. Both use the same backend.
 
-> ⚠️ **Tool name prefix:** The MCP server at `mcp.logicmem.io` serves `logicframe_*` tool names
-> (e.g. `logicframe_memory_log`, `logicframe_memory_recall`). The local pip package
-> (`logicmem[cli]`) serves `logicmem_*` tool names. Both connect to the same backend.
+### Commonly used hosted tools
 
-### Core Tools (via MCP server at mcp.logicmem.io)
+The hosted server lists many more tools; run `tools/list` to see them all.
 
 | Tool | Description |
 |------|-------------|
 | `logicframe_memory_log` | Store a new memory with category, importance, tags |
 | `logicframe_memory_recall` | Search memories with natural language |
-| `logicframe_memory_context` | Get full context about a client, project, or situation |
-| `logicframe_reason` | Multi-step reasoning with memory consultation (all tiers) |
+| `logicframe_memory_context` | Get context about a client, project, or person |
+| `logicframe_reason` | Multi-step reasoning that consults memory |
+| `logicframe_verify` | Check a claim against stored memories |
+| `logicframe_reflect` | Critique a draft answer against memory |
+| `logicframe_intelligence` | Look for patterns and overdue items |
 | `logicframe_audit_verify` | Verify integrity of the audit chain |
-| `logicframe_correction_log` | Log corrections — feeds DPO training pipeline |
+| `logicframe_correction_log` | Log a correction (queued for DPO training) |
 | `logicframe_conversations_store` | Store conversation state for auto-resume |
-| `logicframe_conversations_resume` | Retrieve stored conversation for continuity |
+| `logicframe_conversations_resume` | Retrieve stored conversation state |
 
-### Pro Tier Tools (requires `lm_*` Pro API key)
-
-The following tools require a **LogicMem Pro** API key (`lm_*` prefix) and are
-served via the hosted MCP at `mcp.logicmem.io`. They are NOT available via
-the REST API or the free tier — the SDK will raise `NotImplementedError` if
-you try to call them through `client.verify()`, `client.reflect()`, or
-`client.intelligence()` from a free tier key.
-
-| Tool | Description |
-|------|-------------|
-| `logicframe_verify` | Verify a claim against stored facts |
-| `logicframe_reflect` | Self-critique — evaluate draft against memory |
-| `logicframe_intelligence` | Proactive intelligence — detect patterns and overdue items |
-
-See plans at [logicmem.io/pricing](https://logicmem.io/pricing).
-
-See [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md) for the full protocol reference.
+See [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md) for details.
 
 ---
 
 ## Security
 
-- **Encryption:** AES-256-GCM at rest, TLS 1.3 in transit
-- **Cryptography:** CNSA 2.0 algorithms (Enterprise)
-- **Audit:** Memory operations made through the API and MCP connector are logged to a tamper-evident, hash-linked chain
-- **API Keys:** Per-agent keys with fine-grained permissions
+- **In transit:** HTTPS (the hosted endpoints negotiate TLS 1.3)
+- **Audit:** memory operations made through the API and MCP connector are logged to a tamper-evident, hash-linked chain that you can re-check with `logicframe_audit_verify` or `AuditChain.verify()`
+- **API keys:** sent as a Bearer token; keep them out of code and git
 
-See [SECURITY.md](docs/SECURITY.md) for the full security model.
+See [SECURITY.md](docs/SECURITY.md).
 
 ---
 
 ## Documentation
 
-All documentation lives in the [`docs/`](docs/) folder right here in this repo:
-
-| Doc | What You Need |
+| Doc | What you need |
 |-----|--------------|
-| **[📖 Start Here](docs/QUICKSTART.md)** | Install + first 10 lines of code |
-| **[🔌 MCP Protocol](docs/MCP-PROTOCOL.md)** | Full protocol reference |
-| **[🔗 A2A Sharing](docs/A2A-PROTOCOL.md)** | Agent-to-agent memory |
-| **[🔒 Security](docs/SECURITY.md)** | Encryption, CNSA 2.0, audit |
-| **[💻 Code Examples](docs/EXAMPLES.md)** | All examples in one place |
-| **[🔁 Embedding Fallback](docs/EMBEDDING-FALLBACK.md)** | 3-tier resilience: Cohere → Ollama → TF-IDF |
+| **[Start here](docs/QUICKSTART.md)** | Install + first script |
+| **[MCP protocol](docs/MCP-PROTOCOL.md)** | Hosted MCP server reference |
+| **[A2A sharing](docs/A2A-PROTOCOL.md)** | Agent-to-agent memory |
+| **[Security](docs/SECURITY.md)** | Transport, auth, audit chain |
+| **[Code examples](docs/EXAMPLES.md)** | All examples in one place |
+| **[Embedding fallback](docs/EMBEDDING-FALLBACK.md)** | How the server handles embedding-provider outages |
+| **[Doc index](docs/INDEX.md)** | Everything else |
 
 ## Links
 
@@ -378,16 +305,11 @@ All documentation lives in the [`docs/`](docs/) folder right here in this repo:
 
 ## Contributing
 
-Contributions welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md). We especially welcome MCP client examples, framework integrations (LangChain, CrewAI, etc.), A2A extensions, and SDKs in other languages.
 
-We especially welcome:
+## Changelog
 
-- MCP client examples (more clients → more adoption)
-- Framework integrations (LangChain, AutoGPT, CrewAI, etc.)
-- A2A protocol extensions
-- SDK implementations in other languages
-
----
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

@@ -5,9 +5,9 @@ Thank you for your interest in contributing to LogicMem MCP.
 ## How to Contribute
 
 1. **Fork the repo** and create your branch from `main`.
-2. **Clone your fork:** `git clone git@github.com:your-username/logicmem-mcp.git`
+2. **Clone your fork:** `git clone git@github.com:your-username/LogicMem-mcp-.git`
 3. **Install dev dependencies:** `pip install -e ".[dev]"`
-4. **Run tests:** `pytest`
+4. **Check it installs and runs:** `python -c "import logicmem"` and `logicmem-server --help` (install with `pip install -e ".[dev,cli]"`). `tests/contract_tests.py` is a live-server harness; see [docs/CONTRACT-TESTS.md](docs/CONTRACT-TESTS.md).
 5. **Make your changes** — add tests, update docs, or improve code.
 6. **Push to your fork** and open a Pull Request.
 

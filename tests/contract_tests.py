@@ -31,7 +31,7 @@ Claude Desktop, stdio bridge) will see it. Tests:
 Why this matters:
 Real customers hit the MCP server, not just the HTTP memory server.
 If the contract drifts (tool renames, schema changes, auth model breaks),
-their integrations break silently. Contract tests catch this in CI.
+their integrations break silently. Run these tests to catch that drift.
 
 Built as part of open item #3 from 2026-06-22 readiness audit.
 """
@@ -39,6 +39,7 @@ Built as part of open item #3 from 2026-06-22 readiness audit.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 import urllib.error
@@ -47,10 +48,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-MCP_URL = "http://localhost:8423/mcp"
-MEMORY_URL = "http://localhost:8421"
-LOG_PATH = Path("/root/LogicFrame/logs/contract_tests.jsonl")
-RESULTS_PATH = Path("/root/LogicFrame/logs/contract_tests_latest.json")
+# Override with env vars to point the harness at another server.
+MCP_URL = os.environ.get("LOGICMEM_MCP_URL", "http://localhost:8423/mcp")
+MEMORY_URL = os.environ.get("LOGICMEM_MEMORY_URL", "http://localhost:8421")
+_LOG_DIR = Path(os.environ.get("LOGICMEM_TEST_LOG_DIR", "/root/LogicFrame/logs"))
+LOG_PATH = _LOG_DIR / "contract_tests.jsonl"
+RESULTS_PATH = _LOG_DIR / "contract_tests_latest.json"
 
 # Required tools — if any are missing the contract has drifted
 REQUIRED_MEMORY_TOOLS = [
@@ -474,7 +477,7 @@ def print_summary(s: dict[str, Any]):
             line += f"  — {r['error']}"
         print(line)
     if s["failed"] > 0:
-        print(f"\n{s['failed']} FAILURES — see /root/LogicFrame/logs/contract_tests_latest.json")
+        print(f"\n{s['failed']} FAILURES — see {RESULTS_PATH}")
         sys.exit(1)
 
 

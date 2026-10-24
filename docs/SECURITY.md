@@ -1,106 +1,57 @@
 # Security Model
 
-> **How LogicMem protects your agent memory data.**
+> **How LogicMem handles your agent memory data, and what this repo can and cannot tell you.**
+
+This repo contains the client SDK and a local MCP bridge. The LogicMem server runs in LogicMem's cloud and is not in this repo, so server-side details (storage encryption, key management, hosting) are not documented or verifiable here. Ask [security@logicmem.io](mailto:security@logicmem.io) if you need them for a review.
 
 ---
 
-## Overview
+## In transit
 
-LogicMem is designed for production AI agent workloads, including
-defense and government applications that require the highest levels of
-security and auditability.
-
----
-
-## Encryption
-
-### At Rest
-
-- **Algorithm:** AES-256-GCM
-- **Key Management:** Per-tenant keys managed via CNSA 2.0-compatible KMS
-- **Scope:** All memory entries, embeddings, and metadata are encrypted
-  before being written to storage
-
-### In Transit
-
-- **Protocol:** TLS 1.3 (minimum TLS 1.2)
-- **Certificate:** Validated against the operating system's CA store
-
-### Embeddings
-
-- **Vector embeddings** are stored encrypted at rest
-- **Query vectors** are never stored — only computed in memory during search
+- The SDK and the local MCP server talk to `https://api.logicmem.io`; MCP clients talk to `https://mcp.logicmem.io/mcp`. Both are HTTPS only.
+- As of October 2026 both endpoints negotiate TLS 1.3 with a modern client.
+- The SDK uses `requests`, which validates server certificates by default.
 
 ---
 
 ## Authentication
 
-### API Keys
-
-- Every agent has a unique API key
-- Keys are prefixed (e.g., `lm_live_...`) to distinguish from test keys
-- Keys are hashed at rest — we never store or log the raw key value
-- Rotate keys via the dashboard or API without downtime
-
-### Request Authentication
-
 ```
 Authorization: Bearer lm_your_api_key
 ```
 
-All requests must include the API key in the `Authorization` header.
-Query string authentication is not supported.
+- Keys start with `lm_` and are issued to pilot teams ([logicmem.io/design-partner](https://logicmem.io/design-partner/)).
+- Send the key in the `Authorization` header. The SDK and `logicmem-server` never put it in the URL.
+- On the hosted MCP server, `initialize` and `tools/list` are public; `tools/call` requires a key and returns HTTP 401 without one.
 
 ---
 
-## Multi-Tenant Isolation
+## Tenant scoping
 
-### Client ID
-
-The `client_id` parameter provides **logical isolation** between tenants:
+Memory calls take a `client_id`, which the server uses to group memories by tenant. Use a different `client_id` per tenant:
 
 ```python
-memory.log(text="...", client_id="tenant-a")  # only visible to tenant-a
-memory.log(text="...", client_id="tenant-b")  # only visible to tenant-b
+memory.log(text="...", client_id="tenant-a")
+memory.log(text="...", client_id="tenant-b")
 ```
-
-Even if two tenants use the same agent ID, memories are isolated by `client_id`.
 
 ---
 
-## Audit Trail
+## Audit trail
 
 Memory operations made through the API and MCP connector are logged to a **tamper-evident, hash-linked chain**:
 
 ```
-Genesis Block
+Genesis entry
      │
      ▼
-Block 1 (prev_hash + ops → hash)
+Entry 1 (prev_hash + operation → hash)
      │
      ▼
-Block 2 (prev_hash + ops → hash)
-     │
-     ▼
-Block 3 (prev_hash + ops → hash)
+Entry 2 (prev_hash + operation → hash)
 ```
 
-Any tampering (modified entry, deleted entry, reordered entry) breaks the
-chain and is detectable via `AuditChain.verify()`.
-
----
-
-## Key Rotation
-
-When rotating encryption keys:
-
-1. Generate a new key via the dashboard or API
-2. LogicMem re-encrypts all data with the new key in the background
-3. The old key is archived to `~/.config/logicframe/old-keys/`
-4. Both servers restart cleanly with the new key
-5. Verify with `AuditChain.verify()` after rotation
-
-**Never expose the raw encryption key in logs, chat history, or messages.**
+Because each entry includes the previous entry's hash, a modified, deleted or reordered entry breaks the chain, and that shows up when you re-check it with `AuditChain.verify()` (SDK) or the `logicframe_audit_verify` MCP tool. Tamper-evident means changes are detectable, not that they are impossible.
 
 ---
 
@@ -108,21 +59,18 @@ When rotating encryption keys:
 
 LogicMem is designed to support record-keeping such as [EU AI Act Article 12](https://logicmem.io/eu-ai-act-article-12/). It is a building block for your records, not a compliance certificate. Nothing here is legal advice.
 
-- **Cryptography:** CNSA 2.0 algorithms (Enterprise)
+---
+
+## Reporting security issues
+
+Found a security issue? Email **security@logicmem.io** with details. Please do not open a public issue.
 
 ---
 
-## Reporting Security Issues
+## Best practices
 
-Found a security issue? Email **security@logicmem.io** with details.
-We respond within 24 hours and aim to resolve critical issues within 7 days.
-
----
-
-## Best Practices
-
-1. **Never log API keys** — use environment variables
-2. **Rotate keys periodically** — every 90 days for production
-3. **Use separate keys per agent** — not shared keys across agents
-4. **Enable rate limiting** — on your side to prevent abuse
-5. **Verify audit chain** — weekly for high-stakes workloads
+1. **Never log or commit API keys**; use environment variables or a secrets manager
+2. **Rotate keys periodically**; ask support@logicmem.io for a new key
+3. **Use separate keys per agent** where you can
+4. **Add client-side rate limiting** to avoid HTTP 429s
+5. **Verify the audit chain** regularly for high-stakes workloads

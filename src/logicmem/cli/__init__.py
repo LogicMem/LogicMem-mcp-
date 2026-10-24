@@ -1,33 +1,31 @@
 #!/usr/bin/env python3
 """
-LogicMem MCP Server — Local stdio MCP server for OpenClaw and other MCP clients.
+LogicMem MCP Server — local stdio MCP server for OpenClaw and other MCP clients.
 
-This module provides a local MCP server that acts as a bridge between MCP clients
-(OpenClaw, Claude Code, etc.) and the LogicMem cloud API or a self-hosted
-LogicMem Open server.
+A small bridge between an MCP client (OpenClaw, Claude Code, etc.) and the
+LogicMem REST API. It speaks MCP over stdin/stdout and serves logicmem_* tools.
 
 Usage:
-    # Via pip-installed CLI
-    logicmem-server --api-key YOUR_KEY
-
-    # Via OpenClaw MCP config
-    openclaw mcp add logicmem -- python3 -m logicmem.server
+    logicmem-server                      # reads LOGICMEM_API_KEY from env
+    logicmem-server --api-key lm_xxx     # or pass the key directly
+    python -m logicmem.cli               # same thing, without the script
+    logicmem-server --help
 
 Environment:
-    LOGICMEM_API_KEY     — your LogicMem API key (Bearer lm_xxx)
-    LOGICMEM_SERVER_URL  — memory server URL (default: https://api.logicmem.io)
+    LOGICMEM_API_KEY     — your LogicMem API key (lm_...)
+    LOGICMEM_SERVER_URL  — REST API URL (default: https://api.logicmem.io)
     LOGICMEM_CLIENT_ID   — default client_id (default: default)
+    LOGICMEM_TIMEOUT     — HTTP timeout in seconds (default: 30)
 
 Install:
-    pip install logicmem
+    pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 
-For OpenClaw users: add this to your openclaw.json mcp.servers section:
+OpenClaw config (~/.openclaw/openclaw.json, under mcp.servers):
 {
   "logicmem": {
-    "command": "python3",
-    "args": ["-m", "logicmem.server"],
+    "command": "logicmem-server",
     "env": {
-      "LOGICMEM_API_KEY": "your-lm_xxx-key",
+      "LOGICMEM_API_KEY": "lm_YOUR_API_KEY",
       "LOGICMEM_CLIENT_ID": "your-client-id"
     }
   }
@@ -39,8 +37,10 @@ from __future__ import annotations
 import json
 import os
 import sys
-import threading
+from urllib.parse import urlencode
 from typing import Any
+
+from logicmem import __version__
 
 try:
     import httpx
@@ -73,7 +73,9 @@ class MemoryClient:
             h["Authorization"] = f"Bearer {self.api_key}"
         return h
 
-    def post(self, path: str, body: dict) -> Any:
+    def post(self, path: str, body: dict, params: dict | None = None) -> Any:
+        if params:
+            path = f"{path}?{urlencode(params)}"
         if not _HAS_HTTPX:
             import urllib.request, urllib.error
             url = f"{self.base_url}{path}"
@@ -97,7 +99,9 @@ class MemoryClient:
                 resp.raise_for_status()
                 return resp.json()
 
-    def get(self, path: str) -> Any:
+    def get(self, path: str, params: dict | None = None) -> Any:
+        if params:
+            path = f"{path}?{urlencode(params)}"
         if not _HAS_HTTPX:
             import urllib.request
             url = f"{self.base_url}{path}"
@@ -174,28 +178,14 @@ TOOLS = [
     },
     {
         "name": "logicmem_memory_outcome",
-        "description": "Record whether a stored memory was useful. Feeds the DPO training pipeline.",
+        "description": "Record how useful a stored memory was (score) for a given entry_id.",
         "inputSchema": {
             "type": "object",
             "properties": {
-                "memory_ids": {"type": "array", "items": {"type": "string"}},
-                "success":    {"type": "boolean"},
-                "magnitude":  {"type": "number", "default": 0.5},
+                "entry_id": {"type": "string", "description": "Entry ID from recall results"},
+                "score":    {"type": "number", "description": "Usefulness score"},
             },
-            "required": ["memory_ids", "success"],
-        },
-    },
-    {
-        "name": "logicmem_memory_reflect",
-        "description": "Self-critique: evaluate a draft answer against retrieved memories.",
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "draft_answer": {"type": "string"},
-                "question":     {"type": "string"},
-                "memory_query": {"type": "string"},
-            },
-            "required": ["draft_answer", "question"],
+            "required": ["entry_id", "score"],
         },
     },
     {
@@ -253,7 +243,7 @@ TOOLS = [
     },
     {
         "name": "logicmem_a2a_sync",
-        "description": "Check for new shared memories from other agents since last sync.",
+        "description": "Get shared memories for this agent (optionally since a timestamp).",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -271,7 +261,8 @@ TOOLS = [
 # ── Tool Executor ─────────────────────────────────────────────────────────────
 
 def execute_tool(name: str, args: dict) -> Any:
-    client_id = args.pop("client_id", CLIENT_ID)
+    args = dict(args or {})
+    client_id = args.pop("client_id", None) or CLIENT_ID
 
     if name == "logicmem_memory_log":
         return _client.post("/memory/log", {**args, "client_id": client_id})
@@ -286,7 +277,7 @@ def execute_tool(name: str, args: dict) -> Any:
         return _client.post("/memory/outcome", args)
 
     elif name == "logicmem_memory_stats":
-        return _client.post("/memory/stats", {})
+        return _client.get("/memory/stats")
 
     elif name == "logicmem_memory_health":
         try:
@@ -295,26 +286,32 @@ def execute_tool(name: str, args: dict) -> Any:
         except Exception as e:
             return {"status": "unhealthy", "server": SERVER_URL, "error": str(e)}
 
-    elif name == "logicmem_memory_reflect":
-        return _client.post("/memory/reflect", {**args, "client_id": client_id})
-
     elif name == "logicmem_a2a_register":
-        return _client.post("/memory/agent/register", args)
+        body = {**args, "client_id": client_id}
+        body.setdefault("name", body.get("agent_id", ""))
+        return _client.post("/memory/agent/register", body)
 
     elif name == "logicmem_a2a_heartbeat":
-        return _client.post("/memory/agent/heartbeat", args)
+        # The server reads heartbeat fields from the query string.
+        return _client.post("/memory/agent/heartbeat", {}, params={
+            "client_id": client_id,
+            "agent_id": args["agent_id"],
+            "status": args.get("status", "online"),
+        })
 
     elif name == "logicmem_a2a_list_agents":
-        return _client.get(f"/memory/agents?client_id={args['client_id']}")
+        return _client.get("/memory/org/agents", {"client_id": client_id})
 
     elif name == "logicmem_a2a_write_shared":
-        return _client.post("/memory/shared/write", args)
+        return _client.post("/memory/shared/write", {**args, "client_id": client_id})
 
     elif name == "logicmem_a2a_sync":
-        params = f"client_id={args['client_id']}&agent_id={args['agent_id']}"
+        params = {"client_id": client_id, "agent_id": args["agent_id"]}
         if args.get("since_timestamp"):
-            params += f"&since_timestamp={args['since_timestamp']}"
-        return _client.get(f"/memory/shared/updates?{params}")
+            params["since_timestamp"] = args["since_timestamp"]
+        if args.get("limit"):
+            params["limit"] = int(args["limit"])
+        return _client.get("/memory/shared/updates", params)
 
     else:
         raise ValueError(f"Unknown tool: {name}")
@@ -331,7 +328,7 @@ def handle_initialize(req_id):
             "capabilities": {"tools": {}},
             "serverInfo": {
                 "name": "logicmem",
-                "version": "1.0.0",
+                "version": __version__,
             },
             "instructions": (
                 "LogicMem — tamper-evident records of what your AI agents did. "
@@ -425,7 +422,33 @@ def _main():
             })
 
 
-def main():
+def main(argv: list[str] | None = None):
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog="logicmem-server",
+        description=(
+            "Local stdio MCP server for LogicMem. Speaks MCP (JSON-RPC, one "
+            "message per line) on stdin/stdout and forwards logicmem_* tool "
+            "calls to the LogicMem REST API. Normally started by your MCP "
+            "client, not by hand."
+        ),
+        epilog="API keys are issued to pilot teams: https://logicmem.io/design-partner/",
+    )
+    parser.add_argument("--api-key", help="LogicMem API key (default: $LOGICMEM_API_KEY)")
+    parser.add_argument("--server-url", help="REST API URL (default: $LOGICMEM_SERVER_URL or https://api.logicmem.io)")
+    parser.add_argument("--client-id", help="Default client_id (default: $LOGICMEM_CLIENT_ID or 'default')")
+    parser.add_argument("--version", action="version", version=f"logicmem {__version__}")
+    opts = parser.parse_args(argv)
+
+    global _client, SERVER_URL, CLIENT_ID
+    if opts.server_url:
+        SERVER_URL = opts.server_url.rstrip("/")
+    if opts.client_id:
+        CLIENT_ID = opts.client_id
+    _client = MemoryClient(SERVER_URL, opts.api_key or API_KEY, TIMEOUT)
+    if not _client.api_key:
+        sys.stderr.write("[logicmem] warning: no API key set (LOGICMEM_API_KEY or --api-key); tool calls will fail with 401.\n")
     _main()
 
 
