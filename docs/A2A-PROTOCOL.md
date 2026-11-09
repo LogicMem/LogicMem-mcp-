@@ -1,15 +1,28 @@
-# A2A — Agent-to-Agent Memory Sharing
+# A2A — LogicMem agent-to-agent sharing
 
-> **How AI agents share memory through LogicMem.**
+> **How agents share memory through LogicMem's own API.**
+
+LogicMem A2A sharing is LogicMem's REST API (`/memory/agent/register`, `/memory/shared/write`, `/memory/shared/updates`, and the related calls below). It is not an implementation of the [Agent2Agent (A2A) protocol](https://a2a-protocol.org/). Checked 2026-11-09: that site titles itself the Agent2Agent protocol. This SDK does not send agent cards or that protocol's task methods.
 
 ---
 
-## What is A2A?
+## What this SDK does, and what a hosted listener is
 
-A2A (agent-to-agent) sharing lets agents that work for the same user or
-project write memories to a shared pool and read what other agents wrote,
-instead of each agent keeping its own isolated memory. Agents fetch shared
-memories by polling (`receive_memory()` / `sync()`); nothing is pushed to them.
+Agents that share a workspace can write to a shared pool and read what was written.
+
+**This Python SDK only checks in.** `receive_memory()` and `sync()` call `GET /memory/shared/updates`. They do not open a stream and they do not receive webhooks. Nothing in this package pushes a share to another process.
+
+**A hosted listener is a different path, and it was not re-tested on current production in the audit that edited this page.** Ed Creed reports that his configured Leonard, Linus, and Claude listeners, kept on, communicate and respond to tasks. That is one operator's setup. It is not a latency number and not a statement about every MCP client. An Oct 27, 2026 server snapshot, which is not in this repository, described MCP SSE delivery (`notifications/message`, and raw SSE paths) with **no replay**, and signed webhooks that retry and can be delivered more than once or dead-lettered. Historical samples from Oct 24–25, 2026 were not repeated here, and this page does not publish them as a speed claim.
+
+A share being stored, a listener being notified, and the other agent acting are three events. A notification does not prove receipt or execution. There is no delivery guarantee in this document.
+
+`webhooks/dispatcher.py` in this repo is a local file queue: 5 attempts, then a dead-letter file, and a reconciler that can deliver the same item again because it does not rewrite that file. The Oct 27 snapshot's hosted outbox was described with different limits (12 attempts or 7 days). These are not documented as the same component. Neither was run against production for this audit. Do not point customer traffic at the dispatcher's localhost paths.
+
+### Catch-up limit
+
+`sync(limit=50)` is the default. There is no offset parameter in this client. The method returns a list. If the server also sent `total_new`, this client drops it. An Oct 27, 2026 snapshot of hosted catch-up returned newest first, sliced to `limit` (default 50), included `total_new`, and had no cursor. Live parity is unknown.
+
+If you keep a checkpoint: compare a `total_new` you can see with the number of entries you actually kept. When the server returned only a slice, **do not advance the checkpoint** to the newest timestamp in that slice. Raising `limit` is the only knob this client has. It does not page. Record an incomplete catch-up when the slice is shorter than the backlog you still need. This client cannot see `total_new` unless you call the HTTP API yourself and read the raw JSON.
 
 ```
 ┌──────────────────┐         ┌──────────────────┐
@@ -27,7 +40,7 @@ memories by polling (`receive_memory()` / `sync()`); nothing is pushed to them.
 
 ### Agent ID
 
-Each agent has an identifier, unique within a `client_id`:
+Each agent has a label you declare and send as `agent_id`. The SDK does not authenticate it. In an Oct 27, 2026 server snapshot, agent ids were self-declared inside a workspace, and a target id routed a share rather than proving other agents in that workspace cannot read it. Whether that is still true on the deployed server was not re-tested. Cross-workspace access in that snapshot was described as key-bound. A Nov 9, 2026 check returned HTTP 403 for a foreign `client_id` on that check's route. That is dated counterevidence against a general cross-tenant bypass. It is not a full policy, and this audit did not repeat the call. Do not treat a declared agent id or `is_private` as a privacy boundary. `is_private` is forwarded on the write. This client does not enforce it.
 
 ```python
 import os
@@ -146,7 +159,8 @@ researcher_a2a.share_memory(
     client_id="project-x",
 )
 
-# The executor picks it up on its next poll
+# The executor sees it on its next sync() check-in, if this SDK is what it runs.
+# A hosted listener, if one is configured, is a separate path. See above.
 context = executor_a2a.sync(client_id="project-x")
 ```
 
@@ -183,7 +197,7 @@ All on `https://api.logicmem.io`, with `Authorization: Bearer <api_key>`.
 
 - Each agent authenticates with an API key.
 - Shared memories are written with a `client_id`; read them back with the same `client_id`.
-- `is_private` is sent to the server as the entry's private flag.
+- `is_private` is sent to the server as a flag. This SDK does not prove who can read the entry. A declared `agent_id` routes the share. It is not a separate credential.
 
 ### Rate limits
 

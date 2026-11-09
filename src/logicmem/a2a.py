@@ -23,7 +23,10 @@ class A2AClient:
 
     Args:
         api_key: Your LogicMem API key.
-        agent_id: Unique identifier for this agent (e.g., "claude-agent").
+        agent_id: Label this process declares for itself. The SDK sends
+            the string as given. It does not authenticate that label, and
+            a matching string is not proof that other callers cannot read
+            the same workspace.
         base_url: Base URL of the LogicMem REST API.
                   Defaults to https://api.logicmem.io.
     """
@@ -53,8 +56,8 @@ class A2AClient:
         """
         Register this agent in the LogicMem agent registry.
 
-        Other agents in the same ``client_id`` can discover and communicate
-        with this agent after registration.
+        Registration sends the declared label to the server. It does not
+        authenticate the label or prove other callers cannot read the workspace.
 
         Args:
             name: Human-readable agent name.
@@ -147,7 +150,9 @@ class A2AClient:
                     used when present.
             category: Category of the shared memory. Defaults to "general".
             importance: Importance level 1-10. Defaults to 7.
-            is_private: If True, only the target agent can see this memory.
+            is_private: Forwarded to the server on the write. This client
+                does not enforce who can read the entry. ``target_agent_id``
+                chooses a route; it is not a privacy boundary.
             tags: Optional tags for the shared memory.
             client_id: Client/organization ID. Defaults to "default".
 
@@ -212,9 +217,17 @@ class A2AClient:
         entries whose timestamp is older are dropped too.
 
         Args:
-            since_timestamp: ISO 8601 timestamp of your last sync. Omit for all.
+            since_timestamp: ISO 8601 timestamp. When set, this client
+                drops returned entries whose ``shared_at``, ``created_at``
+                or ``timestamp`` string is lexicographically older. Omit
+                to skip that client-side filter. This is not a cursor.
             client_id: Client/organization ID. Defaults to "default".
-            limit: Maximum number of entries to fetch. Defaults to 50.
+            limit: Maximum number of entries to request. Defaults to 50.
+                There is no ``offset`` argument. The list this method
+                returns does not include a server ``total_new`` count,
+                even if the server sent one. Do not treat a short list
+                as the whole backlog, and do not advance a checkpoint
+                from it while you still need older entries.
 
         Returns:
             List of shared memory entries (dicts from the server).

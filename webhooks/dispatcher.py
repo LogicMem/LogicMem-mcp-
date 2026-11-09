@@ -1,24 +1,31 @@
 #!/usr/bin/env python3
 """
-webhook_dispatcher.py — Reliable webhook delivery with retries + DLQ.
+webhook_dispatcher.py — local file queue with bounded retries.
 
-Used by LogicMem to deliver webhook events to customer endpoints
-(e.g. memory log events, voice ingestion results, MCP tool completions).
+This file is checked into the client kit. It is not identified as the
+hosted LogicMem webhook service, and nothing here shows that production
+runs it. A separate Oct 27, 2026 server snapshot described a different
+retry outbox (12 attempts or 7 days). Do not treat these as one contract.
 
-Behavior:
-- Sender enqueues an event with a target URL + payload + HMAC headers
-- Dispatcher tries up to N times with exponential backoff
-- On N failures, event is moved to DLQ for manual review
-- Reconciler cron retries DLQ items with backoff reset
-- Every state transition is logged to /var/log/webhook_dlq.jsonl
-- Memory server is notified on permanent failure (so watchdog surfaces it)
+What this file actually does:
+- Queue and dead-letter files live under /root/LogicFrame/logs/.
+- ``dispatch_pending`` tries a due item up to MAX_ATTEMPTS (5), with
+  exponential backoff from INITIAL_BACKOFF_SEC (2) capped at
+  MAX_BACKOFF_SEC (300). Then it appends the item to the dead-letter
+  file and drops it from the queue file.
+- Signing, when LOGICMEM_WEBHOOK_SECRET is set, is HMAC-SHA256 over
+  the timestamp string plus the JSON body. Headers are
+  X-LogicMem-Timestamp and X-LogicMem-Signature. If the secret is
+  unset, delivery is skipped.
+- ``reconcile_dlq`` reads the dead-letter file and tries delivery
+  again. It does not rewrite that file, so a later run can deliver
+  the same item again. There is no exactly-once guarantee, and a
+  receiver that stays down is not promised a later success.
+- An optional localhost alert uses THEMIS_CRON_SECRET. That name is
+  not a secret value.
 
-Why this matters:
-A failed webhook shouldn't lose customer data silently.
-DLQ + reconciliation means even a customer's endpoint being down
-for hours doesn't lose events — they'll be delivered when it comes back.
-
-Built as part of open item #2 from 2026-06-22 readiness audit.
+A 2xx from the receiver means this process got an HTTP success for
+that attempt. It does not mean the receiver acted on the payload.
 """
 
 from __future__ import annotations
@@ -300,7 +307,7 @@ def notify_memory_server(message: str, importance: int = 9) -> None:
             "text": f"[WEBHOOK_DLQ] {message}",
             "category": "system_alert",
             "importance": importance,
-            "client_id": "ed_creed",
+            "client_id": "demo-tenant",
             "source": "webhook_dispatcher",
         }).encode("utf-8")
         req = urllib.request.Request(

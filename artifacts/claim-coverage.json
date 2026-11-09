@@ -1,0 +1,143 @@
+{
+  "baseline_sha": "023847eb4e85cab2544d8ecb9f79a26c2364d85e",
+  "observation_date": "2026-11-09",
+  "note": "Statuses are about this worktree. The final commit SHA is the commit that contains this file. This pull request does not publish packages, change GitHub settings, or call tenant APIs.",
+  "claims": [
+    {
+      "id": "coverage-wording",
+      "sources": ["README.md", "docs/SECURITY.md", "src/logicmem/__init__.py"],
+      "original": "prove what your AI did / records of what your AI agents did and relied on",
+      "fixed": "Scoped to operations submitted through the kit, with the partial-coverage and newest-entry caveats next to the lead.",
+      "evidence": "Doc text at baseline contradicted itself (README L277 and SECURITY L54). No live verify() call in this audit.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "two-records",
+      "sources": ["README.md", "docs/SECURITY.md", "docs/MCP-PROTOCOL.md"],
+      "original": "One hash-linked chain, with log, recall and correct given as examples.",
+      "fixed": "Two records from an Oct 27, 2026 server snapshot: audit log includes RECALL; selected-write chain omits RECALL. Live parity and correction-tool mapping unknown. Recall is not called unaudited.",
+      "evidence": "Rex v2 P1a, snapshot commit 48076820 cited by Rex. This audit's GitHub credential got HTTP 404 for LogicMem/logicmem-server on 2026-11-09, so the snapshot was not re-read. No private source pasted into customer docs.",
+      "status": "scoped_not_reverified_live"
+    },
+    {
+      "id": "sdk-poll-vs-listener",
+      "sources": ["README.md", "docs/A2A-PROTOCOL.md", "docs/QUICKSTART.md"],
+      "original": "A2A-PROTOCOL said nothing is pushed.",
+      "fixed": "SDK sync/receive_memory only poll. Hosted listeners are a separate path: Ed Creed's Leonard/Linus/Claude report, plus an Oct 27 snapshot of SSE without replay and webhook retry. Not re-tested on current production. No latency number published.",
+      "evidence": "SDK source has no stream client. Ed report is firsthand setup evidence from the audit request, relayed again in Rex v2 P5. Push code is not in this repo.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "catch-up-limit",
+      "sources": ["src/logicmem/a2a.py", "docs/A2A-PROTOCOL.md", "docs/MCP-PROTOCOL.md"],
+      "original": "sync documented a limit but not the checkpoint trap.",
+      "fixed": "Client default limit 50, no offset, drops total_new. Warns not to advance a checkpoint on a short slice. Newest-first and total_new are attributed to the Oct 27 snapshot, not invented as a cursor.",
+      "evidence": "a2a.py sync() implementation. Rex v2 P4 for the snapshot. Live catch-up not called.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "dispatcher-vs-hosted-retry",
+      "sources": ["webhooks/dispatcher.py"],
+      "original": "Docstring said events are not lost and will be delivered when the receiver returns.",
+      "fixed": "This file: 5 attempts, then a dead-letter file that reconcile does not rewrite (so a later run can deliver again). Oct 27 snapshot outbox: 12 attempts or 7 days. Explicitly different components. Production use of this file is unknown.",
+      "evidence": "Constants and reconcile_dlq() in this repo. Rex v2 P4 for the other numbers. No webhook delivery was performed.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "agent-id-not-privacy",
+      "sources": ["src/logicmem/a2a.py", "docs/A2A-PROTOCOL.md", "docs/SECURITY.md"],
+      "original": "is_private docstring said only the target agent can see the memory. Docs said the agent id is unique within a client_id.",
+      "fixed": "Caller-supplied label and flag are forwarded. Not described as a privacy proof. Dated HTTP 403 for a foreign client_id (Rex P3, Nov 9 ~8 AM ET) is kept as counterevidence against a general bypass. No bypass claimed or tested.",
+      "evidence": "SDK sends the strings. Isolation was not probed in this audit.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "keyless-mcp-auth",
+      "sources": ["README.md", "docs/MCP-PROTOCOL.md", "docs/SECURITY.md", "docs/CONTRACT-TESTS.md"],
+      "original": "initialize and tools/list are public.",
+      "fixed": "Keyless checks on 2026-11-09 returned 401. Morning note covered both hosts and several paths. This audit repeated keyless POST/GET on mcp.logicmem.io/mcp only, also 401. Authenticated sessions were not replayed. Direct-HTTP headers are the Nov 8 operator runbook, labeled as not replayed. Local stdio still answers initialize without a key.",
+      "evidence": "This audit ~21:15 UTC POST/GET. Rex v2 P3 ~8:03-8:10 AM ET. Not a universal statement about every future edge.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "quickstart-client-id",
+      "sources": ["docs/QUICKSTART.md"],
+      "original": "Script wrote quickstart-demo; stdio example omitted LOGICMEM_CLIENT_ID so the bridge defaulted to default.",
+      "fixed": "Both use quickstart-demo. SDK default default is stated. Synthetic id is not permission to pick any tenant.",
+      "evidence": "cli/__init__.py CLIENT_ID default and LogicMem.log signature, covered by tests/test_local_kit.py.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "dpo-disclosure",
+      "sources": ["README.md", "docs/SECURITY.md", "src/logicmem/audit.py"],
+      "original": "Corrections queued for DPO training, with no data-use section in SECURITY.md.",
+      "fixed": "Wording kept. SECURITY states the POST and that the trainer, tenant split, retention, and opt-out are not in this repo and were not verified.",
+      "evidence": "audit.py posts /memory/correction/log. Unauthenticated POST on 2026-11-09 returned 401 (method allowed, not a successful write). Queue consumer not in this repo.",
+      "status": "gap_documented_not_invented"
+    },
+    {
+      "id": "pypi-0.1.1",
+      "sources": ["README.md", "docs/QUICKSTART.md"],
+      "original": "PyPI is an older 0.1.1 build with out-of-date links.",
+      "fixed": "Warning kept and widened to outdated functionality, access, and security claims, including immutable, every operation, and a 300K+ stars sentence that refers to OpenClaw. This PR does not publish or yank.",
+      "evidence": "GET https://pypi.org/pypi/logicmem/json on 2026-11-09: version 0.1.1, project URLs to CreedLab (archived, HTTP 200) and docs.logicmem.io. This host: DNS failure for docs.logicmem.io (curl exit 6), not an HTTP 404. Other reviewers saw TLS EOF via a proxy. Discord invite API returned Unknown Invite 10006; HTML invite page was HTTP 200. Invite is not in this repo.",
+      "status": "warning_strengthened_external_gap_open"
+    },
+    {
+      "id": "pricing",
+      "sources": ["README.md"],
+      "original": "30 days, from $500/mo",
+      "fixed": "Unchanged.",
+      "evidence": "design-partner page on 2026-11-09 says pricing on request and 30 days. Reviewers and the audit owner said this is uneven disclosure, not authority to change the offer.",
+      "status": "unchanged_owner_question"
+    },
+    {
+      "id": "stats-get",
+      "sources": ["src/logicmem/memory.py"],
+      "original": "MemoryTools.stats POSTed /memory/stats.",
+      "fixed": "Uses GET. Local bridge already used GET.",
+      "evidence": "Unauthenticated POST returned 405 and GET returned 401 on 2026-11-09 ~21:15 UTC. Unit test uses a fake client.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "contributing-extras",
+      "sources": ["CONTRIBUTING.md"],
+      "original": "Step 3 installed .[dev]; step 4 said --help needs .[dev,cli]. Issues line had no URL.",
+      "fixed": "One .[dev] install is enough for import and --help because dev already depends on httpx and the console script is in the base package. Base install without extras also ran --help via urllib. Issues URL added. HTTPS clone added.",
+      "evidence": "Audit VM Python 3.12.3 on 2026-11-09. pip install -e .[dev] and pip install -e . both exited 0 for --help and python -m logicmem.cli --help.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "tls-1.3",
+      "sources": ["README.md", "docs/SECURITY.md"],
+      "original": "README stated TLS 1.3 with no date. SECURITY said as of October 2026.",
+      "fixed": "Dated the Nov 9, 2026 handshake. Not claimed that older TLS is disabled.",
+      "evidence": "openssl s_client on 2026-11-09 to api.logicmem.io, mcp.logicmem.io, and logicmem.io: TLSv1.3, TLS_AES_256_GCM_SHA384, verify return code 0, SAN *.logicmem.io.",
+      "status": "dated_not_a_disablement_proof"
+    },
+    {
+      "id": "open-a2a",
+      "sources": ["README.md", "docs/A2A-PROTOCOL.md", "CONTRIBUTING.md"],
+      "original": "A2A name with no disambiguation.",
+      "fixed": "Stated this SDK is LogicMem's REST API, not the Agent2Agent protocol.",
+      "evidence": "a2a.py paths. GET https://a2a-protocol.org/ HTTP 200 on 2026-11-09, title Agent2Agent Protocol. google.github.io/A2A returned HTTP 404.",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "voice-routes",
+      "sources": ["docs/EXAMPLES.md", "docs/CONTRACT-TESTS.md"],
+      "original": "VAPI example could be read as a native integration. Contract doc listed required voice tools.",
+      "fixed": "Example is an explicit memory.log. Vapi, Bland, and HighLevel are possible routes, not certifications. Willow not claimed. Contract row is name-and-schema presence only.",
+      "evidence": "No voice call was placed. Tool presence was not re-listed (keyless tools/list returned 401).",
+      "status": "corrected_in_worktree"
+    },
+    {
+      "id": "signup-vs-pilot",
+      "sources": ["README.md", "docs/QUICKSTART.md"],
+      "original": "Docs say self-serve signup is being rebuilt. API root shows an account form.",
+      "fixed": "Both facts stated. Form not submitted. No access-policy change.",
+      "evidence": "GET https://api.logicmem.io/ on 2026-11-09 ended at /mem/signup title Get Started — LogicMem.",
+      "status": "gap_documented_owner_question"
+    }
+  ]
+}

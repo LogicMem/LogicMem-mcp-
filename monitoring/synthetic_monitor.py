@@ -2,20 +2,24 @@
 """
 synthetic_monitor.py — Production-grade synthetic monitoring for LogicMem.
 
-Probes every public endpoint the way real customer traffic hits it:
+Internal operations probe. Not part of customer SDK setup.
+
+Probes the endpoints listed below from the machine where it runs:
 - Memory HTTP server (port 8421)
 - LogicMem MCP server (port 8423)
 - Qdrant vector store (port 6333)
 - Cloudflare proxy (api.logicmem.io, mcp.logicmem.io)
-- Each public MCP tool (log, recall, search, stats, health, list_agents)
-- Embedding fallback chain (Cohere → Ollama → TF-IDF)
+- A few MCP tool calls and one recall integrity probe
 
 For each probe:
 - Records latency (ms)
-- Validates response shape (not just HTTP 200)
-- Detects drift vs. last known-good baseline
-- Writes result to /var/log/synthetic_monitor.jsonl
-- Alerts via /memory/log if any probe fails (so the watchdog surfaces it)
+- Checks response shape (not just HTTP 200)
+- Compares with the last known-good baseline
+- Appends JSON lines under /root/LogicFrame/logs/synthetic_monitor.jsonl
+- Can POST an alert to localhost /memory/log when THEMIS_CRON_SECRET is set
+
+This script does not select an embedding model. Which fallback the
+server uses is not decided here.
 
 Runs as a cron job every 60 seconds.
 
@@ -163,7 +167,7 @@ MCP_TOOL_PROBES = [
             "method": "tools/call",
             "params": {
                 "name": "logicframe_memory_recall",
-                "arguments": {"query": "production-readiness", "client_id": "ed_creed", "limit": 1},
+                "arguments": {"query": "production-readiness", "client_id": "demo-tenant", "limit": 1},
             },
         },
         "expected_keys": ["content"],
@@ -183,7 +187,7 @@ INTEGRITY_PROBES = [
         "url": "http://localhost:8421/memory/recall",
         "method": "POST",
         "headers": AUTH_HEADERS,
-        "body": {"query": "memory", "client_id": "ed_creed", "limit": 20},
+        "body": {"query": "memory", "client_id": "demo-tenant", "limit": 20},
         "expected_keys": ["results"],
         "max_ms": 10000,
         # Custom validator: alerts if more than 10% of recall results
@@ -321,7 +325,7 @@ def detect_drift(probe_results: list[dict[str, Any]], state: dict[str, Any]) -> 
 
     Triggers an alert on:
     - Any probe that flipped from ok=True → ok=False
-    - Latency p95 doubled since last good run
+    - This probe's latency is more than twice the last saved sample
     - New error type appeared
     """
     alerts: list[str] = []
@@ -378,7 +382,7 @@ def write_alert(messages: list[str]) -> None:
             "text": f"[SYNTHETIC_MONITOR] {len(messages)} alert(s): {'; '.join(messages[:3])}",
             "category": "system_alert",
             "importance": 9,
-            "client_id": "ed_creed",
+            "client_id": "demo-tenant",
             "source": "synthetic_monitor",
         }).encode("utf-8")
         req = urllib.request.Request(

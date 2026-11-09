@@ -1,9 +1,11 @@
 """
-LogicMem — prove what your AI did
-=================================
+LogicMem — agent sharing, with a tamper-evident record
+========================================================
 
-Python SDK and MCP connector for LogicMem: tamper-evident, hash-chained
-records of what your AI agents did, plus memory, A2A sharing and reasoning.
+Python SDK and MCP connector. Agents share through LogicMem's own API
+(not the Agent2Agent open protocol). Operations you send can be recorded
+in tamper-evident, hash-linked records kept on the LogicMem server.
+This package does not, by itself, prove everything an agent did.
 
 Usage:
     from logicmem import LogicMem

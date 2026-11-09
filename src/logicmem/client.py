@@ -93,7 +93,8 @@ class LogicMem:
                     "email", "manual"). Defaults to "sdk".
 
         Returns:
-            dict with at least ``entry_id`` and ``created_at`` fields.
+            The server's JSON object. This client does not guarantee
+            particular keys. Examples read ``entry_id`` with ``.get()``.
 
         Raises:
             AuthenticationError: If the API key is invalid.
@@ -122,7 +123,8 @@ class LogicMem:
         """
         Search for relevant memories using natural language.
 
-        Uses vector similarity search to find memories related to the query.
+        Sends the query to the server. This client does not embed text
+        or run a vector index itself.
 
         Args:
             query: Natural language search query.
@@ -177,7 +179,9 @@ class LogicMem:
         Check the health of the LogicMem server.
 
         Returns:
-            dict with ``status``, ``version``, and optionally ``latency_ms``.
+            The server's JSON object. A public GET of this path on
+            2026-11-09 included ``status`` and ``embedding``. It did not
+            include ``version`` or ``latency_ms``. Fields can change.
         """
         # /memory/health is a GET endpoint on the server.
         return self._get("/memory/health")
@@ -201,13 +205,14 @@ class LogicMem:
         Args:
             question: The question or problem to reason about.
             context: Additional context to include in reasoning.
-            mode: Reasoning depth — "fast" (2 steps), "deep" (5 steps),
-                  "exhaustive" (10 steps). Defaults to "deep".
-            max_steps: Override for number of reasoning steps.
+            mode: Sent to the server as ``fast``, ``deep`` or ``exhaustive``.
+                  This client does not translate the name into a step count.
+            max_steps: Sent as ``max_steps``. Defaults to 5 even when
+                  ``mode`` is ``fast`` or ``exhaustive``.
 
         Returns:
-            dict with ``answer``, ``steps`` (list of reasoning traces),
-            and ``confidence``.
+            The server's JSON object. Examples read ``answer``,
+            ``confidence`` and ``steps`` with ``.get()``.
         """
         payload = {
             "query": question,   # server expects 'query', not 'question'

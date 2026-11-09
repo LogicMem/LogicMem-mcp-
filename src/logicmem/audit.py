@@ -46,8 +46,11 @@ class AuditChain:
         """
         Log a correction (what the agent got wrong and what is right).
 
-        Corrections are stored on the server and queued for its DPO
-        training pipeline.
+        The client POSTs ``original``, ``corrected`` and ``reason`` to
+        ``/memory/correction/log``. These docs describe that as stored
+        and queued for the server's DPO training pipeline. The training
+        job, what text it consumes, tenant separation, retention and
+        any opt-out are not in this repository and were not verified here.
 
         Args:
             original: The incorrect statement or action.

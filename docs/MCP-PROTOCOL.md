@@ -6,15 +6,18 @@
 
 | Interface | URL / command | Tool prefix | Auth |
 |-----------|---------------|-------------|------|
-| **Hosted MCP server** (recommended) | `https://mcp.logicmem.io/mcp` | `logicframe_*` | Bearer key for `tools/call` |
-| **Local stdio bridge** (this repo) | `logicmem-server` | `logicmem_*` | `LOGICMEM_API_KEY` env var or `--api-key` |
+| **Hosted MCP server** (recommended) | `https://mcp.logicmem.io/mcp` | `logicframe_*` | Bearer key. Keyless `initialize` and `tools/list` returned HTTP 401 on 2026-11-09 (see below). |
+| **Local stdio bridge** (this repo) | `logicmem-server` | `logicmem_*` | The stdio handshake does not check a key. REST calls use `LOGICMEM_API_KEY` or `--api-key`. |
 
-Most of this document describes the **hosted server**. The local bridge's tools are listed at the end.
+Most of this document describes the **hosted server**. The local bridge's tools are listed at the end. Hosted and local tools are not one-to-one. The map is in the README.
 
-**Transport:** JSON-RPC requests over HTTPS POST (the server reports MCP protocol version `2024-11-05` in `initialize`).
-**Authentication:** `Authorization: Bearer <api_key>` header. `initialize` and `tools/list` are public; `tools/call` requires a key.
+**Transport:** Clients such as OpenClaw can set `transport` to `streamable-http`. That is the client config key. The local bridge's `initialize` result uses protocol version `2024-11-05` (this repo's code). The hosted server's protocol version was **not** re-read on 2026-11-09, because keyless `initialize` returned HTTP 401. JSON-RPC POST is how the cURL sample talks to the URL. An operator runbook dated Nov 8, 2026 also describes a GET/SSE stream and a `Mcp-Session-Id` after `initialize`. That session was not replayed here.
 
-The tool list below was checked against the live server's `tools/list` on 2026-10-24. The server exposes many more tools than listed here; `tools/list` is the source of truth.
+**Authentication:** Send `Authorization: Bearer <api_key>`. Do not describe `initialize` or `tools/list` as public. On 2026-11-09, about 8:03–8:10 AM ET, keyless GET `/sse`, `/mcp/sse`, and `/mcp`, and keyless POST `initialize` and `tools/list`, returned HTTP 401 on both hosts. About 4:15 PM ET the same day, this audit's keyless POST `initialize`, `tools/list`, and an unknown method, plus keyless GET, against `https://mcp.logicmem.io/mcp` only, also returned HTTP 401. The error text mentioned a bearer `lm_` key or an OIDC token. Those checks do not prove every later edge or session rule. They do contradict the older "public tools/list" sentence. An authenticated call without a session id was not tested.
+
+**Direct HTTP (operator runbook, Nov 8, 2026, not replayed):** `Accept: application/json, text/event-stream`, a descriptive `User-Agent`, `X-Agent-ID`, the bearer token, then `Mcp-Session-Id` from `initialize`. No session id was captured in this audit.
+
+The tool list below was checked against a live `tools/list` on 2026-10-24. It was not reconfirmed on 2026-11-09 because the keyless call returned HTTP 401. `tools/list` with a key is the source of truth. The server may expose more tools than this page.
 
 ---
 
@@ -32,14 +35,22 @@ API keys are issued to pilot teams: [logicmem.io/design-partner](https://logicme
 ```bash
 curl -X POST https://mcp.logicmem.io/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer lm_your_api_key" \
+  -H "User-Agent: logicmem-docs-example" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
-    "method": "tools/list",
-    "params": {}
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": {"name": "docs-example", "version": "0"}
+    }
   }'
 ```
+
+This sample was not executed against the hosted server in the Nov 9, 2026 audit (no production calls on the patched docs). A keyless POST of the same method returned HTTP 401 that day. If `initialize` returns a session id, send it as `Mcp-Session-Id` on later requests. That header was not observed here. `X-Agent-ID` is the declared agent label from the Nov 8 runbook, not a proof of identity.
 
 ---
 
@@ -152,11 +163,11 @@ Critique a draft answer against memory.
 
 ### `logicframe_audit_verify`
 
-Re-check the integrity of the audit chain and hash chain. No arguments. The server describes the result as `chain_valid`, `total_entries` and `failed_at_entry` (null if clean).
+Ask the server to re-check the audit chain and the hash chain. No arguments in the 2026-10-24 note. That note said the server describes `chain_valid`, `total_entries`, and `failed_at_entry` (null if clean). Those field names were not reconfirmed on 2026-11-09. Two records, and the fact that recall can be on one and not the other, are described in [SECURITY.md](SECURITY.md). A clean report does not prove truth, completeness, or that the newest entries were not removed.
 
 ### `logicframe_memory_share`
 
-Share an existing memory with another agent.
+Share an existing memory with another declared agent id. The id is a route, not a separate credential. `is_private` is not a field in this 2026-10-24 note.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -173,7 +184,7 @@ Check for memories stored by other agents since a timestamp.
 | `since_timestamp` | string | ❌ | ISO 8601 timestamp |
 | `client_id` | string | ❌ | Tenant identifier |
 | `agent_id` | string | ❌ | Your agent ID |
-| `limit` | number | ❌ | Max entries |
+| `limit` | number | ❌ | Max entries to request. An Oct 27, 2026 server snapshot of hosted catch-up defaulted this to 50, returned newest first, included `total_new`, and had no cursor. This SDK's `sync()` defaults to 50 and drops `total_new`. Do not advance a checkpoint while the slice may be incomplete. Live parity with that snapshot was not re-checked. |
 
 ### Other hosted tools
 

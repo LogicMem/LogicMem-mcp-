@@ -1,7 +1,6 @@
 # Embedding Fallback Chain
 
-> How the LogicMem server keeps memory writes working when an external
-> embedding provider is down. This runs on the server, not in this SDK.
+> How this repository describes the LogicMem server's embedding order when an external provider is down. The code is not in this SDK. The order below was not re-traced against server source in the Nov 9, 2026 audit. A public `GET /memory/health` that day returned `"embedding": "embed-v4.0"`, which matches the name of tier 1 and does not list the other tiers.
 
 ## The chain
 

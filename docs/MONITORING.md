@@ -1,7 +1,9 @@
 # Production Synthetic Monitoring
 
+**LogicMem internal operations script. Not customer SDK setup.** Paths, the owner label, and the environment-variable name below are how this script is written. They are not secrets, and they are not install steps for the SDK.
+
 **Added:** 2026-06-22 (production readiness audit follow-up)
-**Owner:** themis-synthetic-monitor
+**Owner label in the script:** themis-synthetic-monitor
 
 ## What It Does
 
@@ -16,7 +18,7 @@ Probes these LogicMem endpoints the way client traffic hits them. It runs once p
 
 For each probe the monitor:
 - Measures latency in ms
-- Validates the response **shape** (not just HTTP 200 — proves the contract still works)
+- Checks the response **shape** (not just HTTP 200, so a shape change shows up)
 - Records the result to `/root/LogicFrame/logs/synthetic_monitor.jsonl`
 - Compares against the last known-good baseline in `synthetic_monitor_state.json`
 - Surfaces drift (state flip, latency > 2x, audit chain degradation)

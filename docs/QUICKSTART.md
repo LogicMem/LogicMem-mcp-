@@ -1,12 +1,16 @@
-# ⚡ LogicMem Quickstart — your first tamper-evident record
+# LogicMem quickstart — share a note, check it in, re-check the record
 
-> **Goal:** a Python script that stores memories, searches them, and uses the
-> reasoning engine, then an MCP client connected to LogicMem.
+> **Goal:** install the kit, confirm the local package responds with no network call, then (with an API key) have one declared agent id share a note, have another check in with `sync()`, and ask the server to re-check the record.
+
+The hosted steps need a key. They were not run against `api.logicmem.io` in the audit that wrote this page. Anything in a block marked **illustrative fixture** was not returned by the server.
 
 ## Prerequisites
 
-- Python 3.11 or later
-- A LogicMem API key (`lm_...`). Keys are issued to pilot teams while self-serve sign-up is being rebuilt: [request a pilot](https://logicmem.io/design-partner/).
+- Python 3.11 or later. This audit ran the local checks on Python 3.12.3. Python 3.13 is inside `requires-python` and was not executed here. The package classifiers list 3.11 and 3.12.
+- `git`, because the install command clones the repository.
+- A LogicMem API key (`lm_...`) for the hosted steps. Keys are issued to pilot teams while self-serve sign-up is being rebuilt: [request a pilot](https://logicmem.io/design-partner/). On 2026-11-09 a browser GET of `https://api.logicmem.io/` redirected to an account form. That form was not submitted. Do not assume it issues a key for this kit.
+
+On Windows, create the venv with `py -3 -m venv .venv` and activate `.venv\Scripts\activate`. The `python3` lines below are for macOS and Linux.
 
 ## Step 1 — Install
 
@@ -16,9 +20,23 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 ```
 
-> Install from GitHub as shown. The `logicmem` package on PyPI is an older 0.1.1 build.
+> Install from GitHub as shown. This change does not publish to PyPI. On 2026-11-09 `logicmem` there was still 0.1.1, with older links and with functionality, access, and security wording this repo does not stand behind. See the README. One PyPI sentence attributes "300K+ GitHub stars" to OpenClaw, not to LogicMem.
 
-## Step 2 — Set your API key
+The `cli` extra installs `httpx`. The console script is part of the base package. `logicmem-server --help` also works without that extra; the server uses `urllib` when `httpx` is not installed.
+
+## Step 2 — Local check, no API key
+
+These commands do not call LogicMem. On 2026-11-09, in this audit's VM, a fresh `pip install -e .` (no extras, no `httpx`) and a `pip install -e ".[dev]"` both produced version `0.1.2`, and both `logicmem-server --help` and `python -m logicmem.cli --help` exited 0.
+
+```bash
+python -c "import logicmem; print(logicmem.__version__)"
+logicmem-server --help
+python -m logicmem.cli --help
+```
+
+That output is the package version and the local server's help text. It is not a hosted audit record and it does not show that a share was stored.
+
+## Step 3 — Set your API key
 
 ```bash
 export LOGICMEM_API_KEY="lm_your_api_key_here"
@@ -26,91 +44,104 @@ export LOGICMEM_API_KEY="lm_your_api_key_here"
 
 The script below reads the key from this environment variable. Never commit the key to git.
 
-## Step 3 — Your first script
+Use one synthetic client id in the script and, if you start the local bridge, in `LOGICMEM_CLIENT_ID`. The SDK and the bridge default to `default` when the id is omitted, so a script that writes to `quickstart-demo` and a bridge left on `default` are not looking at the same id. `quickstart-demo` is an example string. The SDK sends it. It does not mean the server will accept an arbitrary tenant id for your key. A Nov 9, 2026 check got HTTP 403 for a foreign `client_id` on that check's route. This audit did not repeat that call.
+
+## Step 4 — Share, check in, ask for a re-check
 
 Create `quickstart.py`:
 
 ```python
 import os
 from logicmem import LogicMem
+from logicmem.a2a import A2AClient
+from logicmem.audit import AuditChain
 
 memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 CLIENT = "quickstart-demo"
 
-# ── Store a preference ──────────────────────────────────────
-memory.log(
-    text="The user prefers urgent messages via Telegram, not email.",
-    category="preference",
-    importance=8,
+# Two labels in one process. They are not two authenticated identities,
+# and they are not two vendors.
+researcher = A2AClient(
+    api_key=os.environ["LOGICMEM_API_KEY"],
+    agent_id="agent-researcher",
+)
+executor = A2AClient(
+    api_key=os.environ["LOGICMEM_API_KEY"],
+    agent_id="agent-executor",
+)
+researcher.register(name="Researcher", client_id=CLIENT)
+executor.register(name="Executor", client_id=CLIENT)
+
+researcher.share_memory(
+    target_agent_id="agent-executor",
+    memory={
+        "text": "Handoff test: the deploy freeze starts Friday.",
+        "category": "task",
+        "importance": 8,
+    },
     client_id=CLIENT,
 )
-print("✅ Memory stored")
+print("share call returned")
 
-# ── Store a task ────────────────────────────────────────────
-memory.log(
-    text="Review Q3 proposal by Friday. "
-         "Priority: cost breakdown first, then timeline.",
-    category="task",
-    importance=9,
-    client_id=CLIENT,
-)
-print("✅ Task stored")
+# Check-in. This does not open a stream, and it does not prove the
+# executor process acted. Default limit is 50, with no offset.
+# Do not advance a checkpoint from this list while a larger backlog
+# may still exist. See docs/A2A-PROTOCOL.md.
+seen = executor.sync(client_id=CLIENT)
+print(f"sync returned {len(seen)} entries")
+for entry in seen:
+    print(entry.get("text"))
 
-# ── Search memories ─────────────────────────────────────────
-results = memory.recall(
-    query="user communication preferences",
-    limit=3,
-    client_id=CLIENT,
-)
-print(f"\n🔍 Found {len(results)} memories:")
-for r in results:
-    print(f"  [{r.get('category', '?')}] {str(r.get('text', ''))[:80]}")
-
-# ── Session briefing ────────────────────────────────────────
-brief = memory.session(client_id=CLIENT)
-print("\n📋 Session briefing:")
-print(f"  {brief}")
-
-# ── Reasoning ───────────────────────────────────────────────
-answer = memory.reason(
-    question="Should we prioritize mobile or web dashboard first?",
-    context="The user is a solo founder with limited engineering bandwidth.",
-    mode="fast",  # fast / deep / exhaustive
-)
-print(f"\n🧠 Reasoning result (confidence: {answer.get('confidence', '?')})")
-print(f"  {str(answer.get('answer', 'No answer returned'))[:200]}")
+# Server-side re-check. Print the dict. This client does not score it.
+print(AuditChain(memory).verify())
 ```
 
-## Step 4 — Run it
+## Step 5 — Run it
 
 ```bash
 python quickstart.py
 ```
 
-You should see the two ✅ lines, then the memories found, a session briefing and a reasoning answer. The exact text, counts and confidence numbers depend on your data and the server.
+You should see `share call returned`, then however many texts `sync` returned for that client id, then the JSON from `verify()`. Counts and fields depend on the server and on data already stored for that key. This audit did not run the script.
 
-## Step 5 — Connect via MCP
+**Illustrative fixture. Not captured from api.logicmem.io or mcp.logicmem.io.**
 
-**Hosted server (recommended).** In your MCP client's settings, add a streamable-HTTP server with URL `https://mcp.logicmem.io/mcp` and header `Authorization: Bearer lm_your_api_key`.
+```text
+share call returned
+sync returned 1 entries
+Handoff test: the deploy freeze starts Friday.
+{'note': 'replace this brace with the dict your server actually returned'}
+```
 
-**Local stdio server.** For clients that launch a command (Claude Desktop, Cursor, etc.):
+A chain report, even one the server describes as intact, does not prove the entries are true or complete, and it does not by itself show that the newest entries were not removed. Not every endpoint writes an audit entry. Details: [SECURITY.md](SECURITY.md).
+
+## Step 6 — Connect via MCP
+
+**Hosted server.** In the client's settings, add a streamable-HTTP server with URL `https://mcp.logicmem.io/mcp` and header `Authorization: Bearer lm_your_api_key`. Keyless `initialize` and `tools/list` returned HTTP 401 on 2026-11-09; see [MCP-PROTOCOL.md](MCP-PROTOCOL.md). The hosted URL does not read `LOGICMEM_CLIENT_ID`. Pass `client_id` in the tool arguments when that tool's schema has the field. The 2026-10-24 note for `logicframe_memory_recall` did not list `client_id`, and that schema was not re-listed on 2026-11-09.
+
+**Local stdio server.** The JSON below is the `mcpServers` shape used by Claude Desktop's local config and by Cursor's MCP config. This audit did not start either application. Cursor was not in the operator's configured-client notes. Claude was reported as configured; which Claude app was not pinned down here.
 
 ```json
 {
   "mcpServers": {
     "logicmem": {
       "command": "logicmem-server",
-      "env": { "LOGICMEM_API_KEY": "lm_your_api_key" }
+      "env": {
+        "LOGICMEM_API_KEY": "lm_your_api_key",
+        "LOGICMEM_CLIENT_ID": "quickstart-demo"
+      }
     }
   }
 }
 ```
 
-If the client cannot find `logicmem-server`, use the full path from `which logicmem-server`, or `"command": "python3", "args": ["-m", "logicmem.cli"]` with the same `env`.
+If the client cannot find `logicmem-server`, use the full path from `which logicmem-server` (Windows: `where logicmem-server`), or `"command": "python3", "args": ["-m", "logicmem.cli"]` with the same `env`. On Windows, `py` may be the launcher instead of `python3`. Both `logicmem-server --help` and `python -m logicmem.cli --help` exited 0 in the local check above.
+
+OpenClaw uses a different file shape (`mcp.servers` in `~/.openclaw/openclaw.json`). That example is in the README, labeled as OpenClaw.
 
 ## What's next?
 
 - **[MCP-PROTOCOL.md](MCP-PROTOCOL.md)** — Hosted MCP server reference
-- **[A2A-PROTOCOL.md](A2A-PROTOCOL.md)** — Agent-to-agent memory sharing guide
-- **[EXAMPLES.md](EXAMPLES.md)** — More examples (voice, multi-agent, audit, etc.)
-- **[SECURITY.md](SECURITY.md)** — Security model and best practices
+- **[A2A-PROTOCOL.md](A2A-PROTOCOL.md)** — Sharing: SDK poll versus hosted listeners
+- **[EXAMPLES.md](EXAMPLES.md)** — More examples (explicit voice notes, audit, errors)
+- **[SECURITY.md](SECURITY.md)** — Records, auth, and data-handling gaps

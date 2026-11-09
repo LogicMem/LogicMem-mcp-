@@ -265,7 +265,7 @@ def test_memory_core():
                 "text": marker_text,
                 "category": "contract_test",
                 "importance": 1,
-                "client_id": "ed_creed",
+                "client_id": "demo-tenant",
             },
             agent_id="contract-test",
         )
@@ -280,7 +280,7 @@ def test_memory_core():
             for attempt in range(3):
                 recall = mcp_tool_call(
                     "logicframe_memory_recall",
-                    {"query": marker_text, "client_id": "ed_creed", "limit": 5},
+                    {"query": marker_text, "client_id": "demo-tenant", "limit": 5},
                     agent_id="contract-test",
                 )
                 if "content" not in recall:

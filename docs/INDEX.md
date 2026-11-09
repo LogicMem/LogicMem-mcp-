@@ -1,6 +1,6 @@
 # Documentation Index
 
-Welcome to the LogicMem documentation. Everything lives right here in this repo.
+Welcome to the LogicMem documentation in this repository. Product pages are on logicmem.io. The server is not in this repo.
 
 ## 📚 All documentation
 
@@ -12,8 +12,8 @@ Welcome to the LogicMem documentation. Everything lives right here in this repo.
 | **[SECURITY.md](SECURITY.md)** | Transport, authentication, audit chain |
 | **[EXAMPLES.md](EXAMPLES.md)** | Code examples — log, recall, session, reason, A2A, audit, errors |
 | **[EMBEDDING-FALLBACK.md](EMBEDDING-FALLBACK.md)** | How the server handles embedding-provider outages |
-| **[CONTRACT-TESTS.md](CONTRACT-TESTS.md)** | MCP contract test harness (`tests/contract_tests.py`) |
-| **[MONITORING.md](MONITORING.md)** | Synthetic monitor script (`monitoring/synthetic_monitor.py`) |
+| **[CONTRACT-TESTS.md](CONTRACT-TESTS.md)** | Internal live harness (`tests/contract_tests.py`), not SDK setup |
+| **[MONITORING.md](MONITORING.md)** | Internal probe script (`monitoring/synthetic_monitor.py`), not SDK setup |
 | **[CONTRIBUTING.md](../CONTRIBUTING.md)** | How to contribute to this repo |
 
 ## 🚦 Start here
