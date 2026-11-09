@@ -199,8 +199,8 @@ The server answers with an HTTP status and a JSON body with an `error` message, 
 | HTTP status | When |
 |-------------|------|
 | `401` | Keyless requests in the Nov 9, 2026 morning note, including `initialize`, `tools/list`, and the paths named above. Not a claim about authenticated routing order. |
-| `404` | Unknown MCP method, as written in the 2026-10-24 notes for requests that presented a key. Not rechecked on 2026-11-09. |
-| `429` | Rate limit, as written in the 2026-10-24 notes. Not rechecked on 2026-11-09. |
+| `404` | Unknown MCP method, as written in the 2026-10-24 notes. Those notes do not record whether the request presented a key. Not rechecked on 2026-11-09. |
+| `429` | Rate limit, as written in the 2026-10-24 notes. Auth state was not recorded there. Not rechecked on 2026-11-09. |
 | `5xx` | Server error, as written in the 2026-10-24 notes. Not rechecked on 2026-11-09. |
 
 ---

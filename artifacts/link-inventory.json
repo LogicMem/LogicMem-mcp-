@@ -4,15 +4,15 @@
   "denominator": {
     "definition": "Occurrences of markdown links, bare http(s) URLs, and mailto links in git-tracked .md .py .toml files. build/ and virtualenvs are not tracked and are omitted.",
     "tracked_files_with_a_link": 21,
-    "link_occurrences": 153,
-    "customer_doc_occurrences": 112,
+    "link_occurrences": 154,
+    "customer_doc_occurrences": 113,
     "code_occurrences": 41,
     "diagnostic_evidence_occurrences": 0,
     "broken_customer_link_occurrences": 0,
     "diagnostic_reference_items": 6,
-    "note": "link_occurrences counts tracked-file link syntax only. diagnostic_reference_items are extra classified evidence targets, not added into link_occurrences and not counted as broken customer links."
+    "note": "link_occurrences counts tracked-file link syntax only. diagnostic_references is a separate list, not added into link_occurrences, and not counted as broken customer links."
   },
-  "classification_note": "diagnostic_evidence rows are ledger and claim-coverage references. Their historical 401, DNS, or invite results are not broken customer links.",
+  "classification_note": "diagnostic_references is a separate list, not link rows. Those items are evidence targets. Their historical 401, DNS, or invite results are not broken customer links.",
   "links": [
     {
       "path": "CONTRIBUTING.md",
@@ -350,7 +350,18 @@
     },
     {
       "path": "README.md",
-      "line": 319,
+      "line": 317,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "README.md",
+      "line": 321,
       "target": "docs/MCP-PROTOCOL.md",
       "kind": "relative",
       "role": "customer_doc",
@@ -360,7 +371,7 @@
     },
     {
       "path": "README.md",
-      "line": 359,
+      "line": 361,
       "target": "docs/MCP-PROTOCOL.md",
       "kind": "relative",
       "role": "customer_doc",
@@ -370,7 +381,7 @@
     },
     {
       "path": "README.md",
-      "line": 365,
+      "line": 367,
       "target": "docs/SECURITY.md",
       "kind": "relative",
       "role": "customer_doc",
@@ -380,7 +391,7 @@
     },
     {
       "path": "README.md",
-      "line": 366,
+      "line": 368,
       "target": "#which-record",
       "kind": "relative",
       "role": "customer_doc",
@@ -390,28 +401,8 @@
     },
     {
       "path": "README.md",
-      "line": 370,
+      "line": 372,
       "target": "docs/SECURITY.md",
-      "kind": "relative",
-      "role": "customer_doc",
-      "destination_status": "exists",
-      "fragment_ok": null,
-      "counts_as_broken_customer_link": false
-    },
-    {
-      "path": "README.md",
-      "line": 378,
-      "target": "docs/QUICKSTART.md",
-      "kind": "relative",
-      "role": "customer_doc",
-      "destination_status": "exists",
-      "fragment_ok": null,
-      "counts_as_broken_customer_link": false
-    },
-    {
-      "path": "README.md",
-      "line": 379,
-      "target": "docs/MCP-PROTOCOL.md",
       "kind": "relative",
       "role": "customer_doc",
       "destination_status": "exists",
@@ -421,7 +412,7 @@
     {
       "path": "README.md",
       "line": 380,
-      "target": "docs/A2A-PROTOCOL.md",
+      "target": "docs/QUICKSTART.md",
       "kind": "relative",
       "role": "customer_doc",
       "destination_status": "exists",
@@ -431,7 +422,7 @@
     {
       "path": "README.md",
       "line": 381,
-      "target": "docs/SECURITY.md",
+      "target": "docs/MCP-PROTOCOL.md",
       "kind": "relative",
       "role": "customer_doc",
       "destination_status": "exists",
@@ -441,7 +432,7 @@
     {
       "path": "README.md",
       "line": 382,
-      "target": "docs/EXAMPLES.md",
+      "target": "docs/A2A-PROTOCOL.md",
       "kind": "relative",
       "role": "customer_doc",
       "destination_status": "exists",
@@ -451,7 +442,7 @@
     {
       "path": "README.md",
       "line": 383,
-      "target": "docs/EMBEDDING-FALLBACK.md",
+      "target": "docs/SECURITY.md",
       "kind": "relative",
       "role": "customer_doc",
       "destination_status": "exists",
@@ -461,6 +452,26 @@
     {
       "path": "README.md",
       "line": 384,
+      "target": "docs/EXAMPLES.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 385,
+      "target": "docs/EMBEDDING-FALLBACK.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 386,
       "target": "docs/INDEX.md",
       "kind": "relative",
       "role": "customer_doc",
@@ -470,7 +481,7 @@
     },
     {
       "path": "README.md",
-      "line": 388,
+      "line": 390,
       "target": "https://logicmem.io",
       "kind": "absolute",
       "role": "customer_doc",
@@ -481,7 +492,7 @@
     },
     {
       "path": "README.md",
-      "line": 389,
+      "line": 391,
       "target": "https://logicmem.io/quickstart/",
       "kind": "absolute",
       "role": "customer_doc",
@@ -492,7 +503,7 @@
     },
     {
       "path": "README.md",
-      "line": 390,
+      "line": 392,
       "target": "https://logicmem.io/design-partner/",
       "kind": "absolute",
       "role": "customer_doc",
@@ -503,7 +514,7 @@
     },
     {
       "path": "README.md",
-      "line": 391,
+      "line": 393,
       "target": "https://logicmem.io/eu-ai-act-article-12/",
       "kind": "absolute",
       "role": "customer_doc",
@@ -514,7 +525,7 @@
     },
     {
       "path": "README.md",
-      "line": 392,
+      "line": 394,
       "target": "mailto:support@logicmem.io",
       "kind": "mailto",
       "role": "customer_doc",
@@ -525,7 +536,7 @@
     },
     {
       "path": "README.md",
-      "line": 400,
+      "line": 402,
       "target": "CONTRIBUTING.md",
       "kind": "relative",
       "role": "customer_doc",
@@ -535,7 +546,7 @@
     },
     {
       "path": "README.md",
-      "line": 404,
+      "line": 406,
       "target": "CHANGELOG.md",
       "kind": "relative",
       "role": "customer_doc",
@@ -545,7 +556,7 @@
     },
     {
       "path": "README.md",
-      "line": 408,
+      "line": 410,
       "target": "LICENSE",
       "kind": "relative",
       "role": "customer_doc",

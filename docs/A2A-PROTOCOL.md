@@ -14,7 +14,7 @@ Agents that share a workspace can write to a shared pool and read what was writt
 
 **A hosted listener is a different path.** The November 2026 operator report in the README is the real-time claim: configured listeners kept on, in that one always-on setup. It is not a latency number and not a statement about every MCP client. Setting one up is pilot-assisted. Use [the pilot page](https://logicmem.io/design-partner/) or [support@logicmem.io](mailto:support@logicmem.io). This page does not list universal listener steps.
 
-An Oct 27, 2026 **source snapshot** (not in this repository, and not a delivery test) described an MCP SSE path and, separately, signed webhooks. A review note on that SSE description said the SSE path had no replay. That is not a webhook rule and not a test result. Signed webhooks in the same snapshot were described as able to retry or dead-letter. Separate single-sample notes from Oct 24–25, 2026 are not proof of the source snapshot and are not a speed claim.
+An Oct 27, 2026 **source snapshot** (not in this repository, and not a delivery test) described an MCP SSE path and, separately, signed webhooks. A review note on that SSE description said the SSE path had no replay. That is not a webhook rule and not a test result. The same snapshot described those webhooks as able to retry or dead-letter. A retry can arrive more than once, and delivery is not guaranteed. The snapshot does not name a field to dedupe on, so this page does not name one. Whether production still matches the snapshot is unknown. Separate single-sample notes from Oct 24–25, 2026 are not proof of the source snapshot and are not a speed claim.
 
 A share being stored, a listener being notified, and the other agent acting are three events. A notification does not prove receipt or execution. There is no delivery guarantee in this document.
 
@@ -100,7 +100,7 @@ for agent in agents:
 
 ### 3. Share a memory
 
-`category` and `importance` may be arguments or keys inside `memory`. Keys inside `memory` override the arguments. The examples on this site use the arguments. `text` belongs in `memory`.
+`category` and `importance` may be arguments or keys inside `memory`. Keys inside `memory` override the arguments. Both shapes appear below. `text` belongs in `memory`.
 
 ```python
 result = a2a.share_memory(

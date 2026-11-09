@@ -24,14 +24,14 @@
       "sources": ["README.md", "docs/A2A-PROTOCOL.md", "docs/QUICKSTART.md"],
       "original": "A2A-PROTOCOL said nothing is pushed.",
       "fixed": "SDK sync/receive_memory only poll. Real-time is one anonymous operator-reported always-on setup from November 2026, not a generic product claim. Oct 27 source snapshot is not the Oct 24-25 samples. SSE replay note is not a webhook rule.",
-      "evidence": "SDK source has no stream client. Ed report is firsthand setup evidence from the audit request, relayed again in Rex v2 P5. Push code is not in this repo.",
+      "evidence": "SDK source has no stream client. The operator's firsthand report is reported-only setup evidence from the review request. It was not independently reproduced. Push code is not in this repo.",
       "status": "corrected_in_worktree"
     },
     {
       "id": "catch-up-limit",
       "sources": ["src/logicmem/a2a.py", "docs/A2A-PROTOCOL.md", "docs/MCP-PROTOCOL.md"],
       "original": "sync documented a limit but not the checkpoint trap.",
-      "fixed": "Client default limit 50, no offset, drops total_new. Warns not to advance a checkpoint on a short slice. Newest-first and total_new are attributed to the Oct 27 snapshot, not invented as a cursor.",
+      "fixed": "Client default limit 50, no offset, drops total_new. A result as long as limit may be incomplete; a shorter result is not proof of completeness. Newest-first and total_new are attributed only to MCP logicframe_memory_sync_check in the Oct 27 snapshot, not to REST /memory/shared/updates.",
       "evidence": "a2a.py sync() implementation. Rex v2 P4 for the snapshot. Live catch-up not called.",
       "status": "corrected_in_worktree"
     },

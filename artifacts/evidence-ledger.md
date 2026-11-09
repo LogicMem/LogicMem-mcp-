@@ -14,14 +14,14 @@ Personal names are not used for the operator report. Copyright and the package a
 - The Oct 27 text is a source snapshot, not a delivery test. Oct 24–25 single samples are separate and are not proof of that source. SSE "no replay" is only a note on the snapshot's SSE description, not a webhook rule.
 - `share_memory` accepts `category` and `importance` as arguments or as keys inside `memory`. Keys inside `memory` win. Offline mocks cover three shapes.
 - Without `httpx`, the local bridge does not set `User-Agent`. urllib's opener default on Python 3.12 is `Python-urllib/3.12`. With httpx 0.28.1 the default is `python-httpx/0.28.1`. Neither was sent to LogicMem in the offline check. `--help` does not send HTTP. A Nov 8, 2026 operator note about a browser-integrity 403 for `Python-urllib` is dated and is not proof the fallback fails now. The `cli` extra is conservative, not a guaranteed live success.
-- Keyless HTTP 401 on the morning of Nov 9, 2026 is an operator note (both hosts). HTTP 404 and 429 rows in the MCP error table are the 2026-10-24 notes for keyed calls and were not rechecked. No universal auth-before-routing order is claimed.
-- HTTP 403 for a foreign `client_id` is that same morning operator note, not a later probe.
+- Keyless HTTP 401 on the morning of Nov 9, 2026 (about 8:03–8:10 AM ET, both hosts) is an operator note. A separate foreign-`client_id` HTTP 403 is that same morning note, not a later probe. HTTP 404 and 429 rows in the MCP error table are the 2026-10-24 notes. Those notes do not record auth state. They were not rechecked. No universal auth-before-routing order is claimed.
+- TLS, the public health JSON, the signup-page redirect, and PyPI 0.1.1 are observations from the same afternoon window as the disallowed calls below (about 21:15–21:28 UTC). They were not rechecked for this commit.
 - PyPI `logicmem` 0.1.1 remains the published package, with older functionality, access, and security wording. Not published or yanked here.
 - Price text is unchanged. GitHub About, topics, and releases were not edited.
 
 ## Calls that should not have been made
 
-Early on Nov 9, 2026, unauthenticated GET and POST requests were sent to `api.logicmem.io` and `mcp.logicmem.io` even though live calls were not allowed. Responses seen were HTTP 401, 405, or 422. Those are rejects or validation errors. They are not accepted writes, and they are not proof that a complete unauthenticated write is impossible. They were not repeated for this correction. The later offline passes did not call those hosts.
+On Nov 9, 2026, about 4:15–4:28 PM ET (21:15–21:28 UTC), unauthenticated GET and POST requests were sent to `api.logicmem.io` and `mcp.logicmem.io` even though live calls were not allowed. That window is not the morning operator note. Responses seen were HTTP 401, 405, or 422. Those are rejects or validation errors. They are not accepted writes, and they are not proof that a complete unauthenticated write is impossible. They were not repeated for this correction. The later offline passes did not call those hosts.
 
 ## Offline evidence
 
@@ -37,7 +37,7 @@ Fresh installs before that commit are earlier-worktree evidence, not reinstalls 
 
 ## Link inventory
 
-`artifacts/link-inventory.json` is regenerated from `git ls-files` (tracked paths only). `build/` and virtualenvs are not in that set. Counts in the JSON name their denominator. URLs that appear only as evidence in this ledger are classified `diagnostic_evidence`, not customer navigation. A diagnostic HTTP 404, DNS failure, or invite error is not counted as a broken customer link.
+`artifacts/link-inventory.json` is regenerated from `git ls-files` (tracked paths only). `build/` and virtualenvs are not in that set. Counts in the JSON name their denominator. `diagnostic_references` is a separate list, not link rows. A historical HTTP 404, DNS failure, or invite error on that list is not a broken customer link.
 
 ## Still open
 
