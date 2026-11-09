@@ -20,13 +20,13 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 ```
 
-> Install from GitHub as shown. This change does not publish to PyPI. On 2026-11-09 `logicmem` there was still 0.1.1, with older links and with functionality, access, and security wording this repo does not stand behind. See the README. One PyPI sentence attributes "300K+ GitHub stars" to OpenClaw, not to LogicMem.
+> Install from GitHub as shown. As of 2026-11-09, PyPI `logicmem` was still 0.1.1, with older links and with functionality, access, and security wording this repo does not stand behind. See the README. One PyPI sentence attributes a star count to OpenClaw, not to LogicMem.
 
 The `cli` extra installs `httpx`. The console script is part of the base package. `logicmem-server --help` also works without that extra; the server uses `urllib` when `httpx` is not installed.
 
 ## Step 2 — Local check, no API key
 
-These commands do not call LogicMem. On 2026-11-09, in this audit's VM, a fresh `pip install -e .` (no extras, no `httpx`) and a `pip install -e ".[dev]"` both produced version `0.1.2`, and both `logicmem-server --help` and `python -m logicmem.cli --help` exited 0.
+These commands do not call LogicMem. On 2026-11-09, on Python 3.12.3, `pip install -e .` (no extras) and `pip install -e ".[dev]"` both imported version `0.1.2`, and `logicmem-server --help` and `python -m logicmem.cli --help` both exited 0. `--help` does not send HTTP. Hosted calls without `httpx` use urllib's default User-Agent. That path's acceptance at the edge was not verified. The `cli` extra is the conservative install for hosted calls, not a guarantee. See the README.
 
 ```bash
 python -c "import logicmem; print(logicmem.__version__)"
@@ -74,19 +74,18 @@ executor.register(name="Executor", client_id=CLIENT)
 
 researcher.share_memory(
     target_agent_id="agent-executor",
-    memory={
-        "text": "Handoff test: the deploy freeze starts Friday.",
-        "category": "task",
-        "importance": 8,
-    },
+    memory={"text": "Handoff test: the deploy freeze starts Friday."},
+    category="task",
+    importance=8,
     client_id=CLIENT,
 )
 print("share call returned")
 
 # Check-in. This does not open a stream, and it does not prove the
-# executor process acted. Default limit is 50, with no offset.
-# Do not advance a checkpoint from this list while a larger backlog
-# may still exist. See docs/A2A-PROTOCOL.md.
+# executor process acted. If the list is as long as limit (default 50),
+# do not treat it as the whole backlog and do not advance a checkpoint.
+# A shorter list is not proof that nothing older remains.
+# See docs/A2A-PROTOCOL.md.
 seen = executor.sync(client_id=CLIENT)
 print(f"sync returned {len(seen)} entries")
 for entry in seen:

@@ -36,7 +36,8 @@ LogicMem-mcp-/
 ├── docs/                 ← this folder
 ├── src/logicmem/         ← the Python SDK
 │   └── cli/              ← logicmem-server (local MCP bridge)
-├── tests/contract_tests.py
+├── tests/contract_tests.py   ← internal live harness
+├── tests/test_local_kit.py   ← offline tests
 ├── monitoring/synthetic_monitor.py
 └── webhooks/dispatcher.py
 ```

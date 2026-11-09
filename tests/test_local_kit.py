@@ -105,7 +105,9 @@ def test_help_commands_exit_zero():
         [sys.executable, "-m", "logicmem.cli", "--help"],
         [sys.executable, "-m", "logicmem.cli", "--version"],
     ):
-        result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=False)
+        result = subprocess.run(
+            cmd, cwd=ROOT, capture_output=True, text=True, check=False
+        )
         assert result.returncode == 0, result.stderr
         assert "logicmem" in (result.stdout + result.stderr).lower()
 
@@ -116,7 +118,8 @@ def test_no_real_tenant_string_outside_the_changelog_note():
     for path in ROOT.rglob("*"):
         if not path.is_file():
             continue
-        if any(part in {".git", ".venv", "__pycache__", "artifacts"} for part in path.parts):
+        skip = {".git", ".venv", "__pycache__", "artifacts"}
+        if any(part in skip for part in path.parts):
             continue
         if path.suffix not in {".py", ".md", ".toml"}:
             continue
@@ -137,7 +140,9 @@ def test_python_fences_parse():
 
 def test_relative_links_and_anchors():
     errors = []
-    for path in list((ROOT / "docs").rglob("*.md")) + [ROOT / "README.md", ROOT / "CONTRIBUTING.md", ROOT / "CHANGELOG.md"]:
+    pages = list((ROOT / "docs").rglob("*.md"))
+    pages += [ROOT / "README.md", ROOT / "CONTRIBUTING.md", ROOT / "CHANGELOG.md"]
+    for path in pages:
         text = path.read_text(encoding="utf-8")
         headings = _heading_slugs(text)
         for match in re.finditer(r"\[[^\]]+\]\(([^)]+)\)", text):
@@ -150,7 +155,9 @@ def test_relative_links_and_anchors():
                 if not dest.is_file():
                     errors.append(f"{path.name}: missing {target}")
                     continue
-                if fragment and fragment not in _heading_slugs(dest.read_text(encoding="utf-8")):
+                slug = fragment
+                dest_slugs = _heading_slugs(dest.read_text(encoding="utf-8"))
+                if slug and slug not in dest_slugs:
                     errors.append(f"{path.name}: bad fragment {target}")
             elif fragment and fragment not in headings:
                 errors.append(f"{path.name}: bad self fragment #{fragment}")
@@ -180,6 +187,94 @@ def _heading_slugs(text: str) -> set[str]:
         slug = re.sub(r"\s+", "-", slug.strip())
         slugs.add(slug)
     return slugs
+
+
+def test_share_memory_argument_shapes():
+    """category/importance may be arguments or keys inside memory. Keys win."""
+    from logicmem.a2a import A2AClient
+
+    sent = []
+
+    class Stub(LogicMem):
+        def __init__(self):
+            pass
+
+        def _post(self, path, payload):
+            sent.append((path, payload))
+            return {"ok": True}
+
+    client = A2AClient(api_key="lm_offline", agent_id="agent-researcher")
+    client.api_key = "lm_offline"
+
+    def factory(*_a, **_k):
+        return Stub()
+
+    import logicmem.client as client_mod
+    original = client_mod.LogicMem
+    client_mod.LogicMem = factory
+    try:
+        client.share_memory(
+            target_agent_id="agent-executor",
+            memory={"text": "from-args"},
+            category="task",
+            importance=9,
+            client_id="demo-tenant",
+        )
+        client.share_memory(
+            target_agent_id="agent-executor",
+            memory={"text": "inside", "category": "decision", "importance": 3},
+            category="task",
+            importance=9,
+            client_id="demo-tenant",
+        )
+        client.share_memory(
+            target_agent_id="agent-executor",
+            memory={"text": "mixed", "category": "note"},
+            importance=4,
+            client_id="demo-tenant",
+        )
+    finally:
+        client_mod.LogicMem = original
+
+    assert sent[0][1]["category"] == "task" and sent[0][1]["importance"] == 9
+    assert sent[1][1]["category"] == "decision" and sent[1][1]["importance"] == 3
+    assert sent[2][1]["category"] == "note" and sent[2][1]["importance"] == 4
+    assert all(row[1]["text"] for row in sent)
+
+
+def test_urllib_fallback_does_not_set_user_agent_before_stdlib():
+    import urllib.error
+    import urllib.request
+
+    from logicmem.cli import MemoryClient
+
+    captured = {}
+
+    def fake_urlopen(req, timeout=None):
+        captured["pre_ua"] = req.get_header("User-agent")
+        opener = urllib.request.build_opener()
+        captured["opener_ua"] = dict(opener.addheaders).get("User-agent")
+        raise urllib.error.URLError("offline-stop")
+
+    original = urllib.request.urlopen
+    urllib.request.urlopen = fake_urlopen
+    try:
+        client = MemoryClient("http://127.0.0.1", "lm_offline", timeout=1)
+        # Force the urllib branch even if httpx is installed in this venv.
+        import logicmem.cli as cli_mod
+        previous = cli_mod._HAS_HTTPX
+        cli_mod._HAS_HTTPX = False
+        try:
+            client.get("/memory/health")
+        except Exception as exc:
+            assert "offline-stop" in str(exc)
+        finally:
+            cli_mod._HAS_HTTPX = previous
+    finally:
+        urllib.request.urlopen = original
+
+    assert captured["pre_ua"] is None
+    assert str(captured["opener_ua"]).startswith("Python-urllib/")
 
 
 def test_audit_verify_is_get():

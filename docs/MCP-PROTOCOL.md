@@ -13,9 +13,9 @@ Most of this document describes the **hosted server**. The local bridge's tools 
 
 **Transport:** Clients such as OpenClaw can set `transport` to `streamable-http`. That is the client config key. The local bridge's `initialize` result uses protocol version `2024-11-05` (this repo's code). The hosted server's protocol version was **not** re-read on 2026-11-09, because keyless `initialize` returned HTTP 401. JSON-RPC POST is how the cURL sample talks to the URL. An operator runbook dated Nov 8, 2026 also describes a GET/SSE stream and a `Mcp-Session-Id` after `initialize`. That session was not replayed here.
 
-**Authentication:** Send `Authorization: Bearer <api_key>`. Do not describe `initialize` or `tools/list` as public. On 2026-11-09, about 8:03–8:10 AM ET, keyless GET `/sse`, `/mcp/sse`, and `/mcp`, and keyless POST `initialize` and `tools/list`, returned HTTP 401 on both hosts. About 4:15 PM ET the same day, this audit's keyless POST `initialize`, `tools/list`, and an unknown method, plus keyless GET, against `https://mcp.logicmem.io/mcp` only, also returned HTTP 401. The error text mentioned a bearer `lm_` key or an OIDC token. Those checks do not prove every later edge or session rule. They do contradict the older "public tools/list" sentence. An authenticated call without a session id was not tested.
+**Authentication:** Send `Authorization: Bearer <api_key>`. Do not describe `initialize` or `tools/list` as public. A Nov 9, 2026 morning operator note recorded HTTP 401 for keyless GET `/sse`, `/mcp/sse`, and `/mcp`, and for keyless POST `initialize` and `tools/list`, on both hosts. That contradicts the older "public tools/list" sentence for those requests. It does not set an order between authentication and method routing for every later request, and it was not an authenticated call.
 
-**Direct HTTP (operator runbook, Nov 8, 2026, not replayed):** `Accept: application/json, text/event-stream`, a descriptive `User-Agent`, `X-Agent-ID`, the bearer token, then `Mcp-Session-Id` from `initialize`. No session id was captured in this audit.
+**Direct HTTP (operator runbook, Nov 8, 2026, not replayed):** `Accept: application/json, text/event-stream`, a descriptive `User-Agent`, `X-Agent-ID`, the bearer token, then `Mcp-Session-Id` from `initialize` when one is returned. No authenticated session id is recorded in these docs.
 
 The tool list below was checked against a live `tools/list` on 2026-10-24. It was not reconfirmed on 2026-11-09 because the keyless call returned HTTP 401. `tools/list` with a key is the source of truth. The server may expose more tools than this page.
 
@@ -184,7 +184,7 @@ Check for memories stored by other agents since a timestamp.
 | `since_timestamp` | string | ❌ | ISO 8601 timestamp |
 | `client_id` | string | ❌ | Tenant identifier |
 | `agent_id` | string | ❌ | Your agent ID |
-| `limit` | number | ❌ | Max entries to request. An Oct 27, 2026 server snapshot of hosted catch-up defaulted this to 50, returned newest first, included `total_new`, and had no cursor. This SDK's `sync()` defaults to 50 and drops `total_new`. Do not advance a checkpoint while the slice may be incomplete. Live parity with that snapshot was not re-checked. |
+| `limit` | number | ❌ | Max entries to request. An Oct 27, 2026 source snapshot of this MCP tool (`logicframe_memory_sync_check` only, not REST `/memory/shared/updates`) returned newest first, defaulted the slice to 50, included `total_new`, and had no cursor. The SDK's `sync()` is the REST call: it defaults to 50 and drops `total_new`, so it cannot apply that comparison. If a list comes back as long as `limit`, do not treat it as complete and do not advance a checkpoint. A shorter list is not proof of completeness. Do not assume a higher limit is accepted. |
 
 ### Other hosted tools
 
@@ -198,10 +198,10 @@ The server answers with an HTTP status and a JSON body with an `error` message, 
 
 | HTTP status | When |
 |-------------|------|
-| `401` | `tools/call` without a valid API key |
-| `404` | Unknown MCP method |
-| `429` | Rate limit exceeded; back off and retry |
-| `5xx` | Server error |
+| `401` | Keyless requests in the Nov 9, 2026 morning note, including `initialize`, `tools/list`, and the paths named above. Not a claim about authenticated routing order. |
+| `404` | Unknown MCP method, as written in the 2026-10-24 notes for requests that presented a key. Not rechecked on 2026-11-09. |
+| `429` | Rate limit, as written in the 2026-10-24 notes. Not rechecked on 2026-11-09. |
+| `5xx` | Server error, as written in the 2026-10-24 notes. Not rechecked on 2026-11-09. |
 
 ---
 

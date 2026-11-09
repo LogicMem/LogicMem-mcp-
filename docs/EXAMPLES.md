@@ -1,6 +1,6 @@
 # Examples
 
-> **Working examples for LogicMem features.**
+> **Example code for LogicMem features.** These snippets call the hosted API and need a key. They were not run against the hosted API for this page. The stories are fictional.
 
 ---
 
@@ -108,8 +108,7 @@ memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 # Ask a complex question that requires reasoning
 answer = memory.reason(
     question="Should we prioritize the mobile app or web dashboard first?",
-    context="The user is a solo founder with limited engineering bandwidth. "
-            "Example only: a small team with a fixed weekly time budget.",
+    context="Example only: a small team with a fixed weekly time budget.",
     mode="deep",  # fast / deep / exhaustive
 )
 
@@ -142,27 +141,27 @@ from logicmem.a2a import A2AClient
 
 researcher_a2a = A2AClient(
     api_key=os.environ["RESEARCHER_API_KEY"],
-    agent_id="researcher-claude",
+    agent_id="agent-researcher",
 )
 
 # Register first
 researcher_a2a.register(
-    name="Claude Researcher",
+    name="Researcher Agent",
     agent_type="agent",
     client_id="project-x",
 )
 
 # When research is done, share findings
 researcher_a2a.share_memory(
-    target_agent_id="executor-claude",
+    target_agent_id="agent-executor",
     memory={
         "text": "Research complete. "
                 "Competitor analysis: 3 players in target segment. "
                 "Recommended positioning: mid-market SMB, "
                 "lead with pricing transparency.",
-        "category": "decision",
-        "importance": 9,
     },
+    category="decision",
+    importance=9,
     client_id="project-x",
 )
 ```
@@ -177,7 +176,7 @@ memory = LogicMem(api_key=os.environ["EXECUTOR_API_KEY"])
 
 executor_a2a = A2AClient(
     api_key=os.environ["EXECUTOR_API_KEY"],
-    agent_id="executor-claude",
+    agent_id="agent-executor",
 )
 
 # Check for new context from the researcher
@@ -235,8 +234,7 @@ record a call, the audio, or a full transcript by itself. Vapi via an
 external MCP client, Bland via tools or webhooks, and HighLevel Voice AI
 via MCP Labs or custom actions are routes a developer might connect. They
 are not end-to-end certifications and they are not native LogicMem
-integrations. This repo does not identify a product named Willow. A Codex
-client is not a ChatGPT app.
+integrations.
 
 ### Store a Voice Call Summary
 
@@ -319,9 +317,7 @@ audit = AuditChain(memory)
 audit.log_correction(
     original="The user prefers email for urgent messages.",
     corrected="The user prefers Telegram for urgent messages, not email.",
-    reason="User explicitly corrected this in the call on 2026-06-10. "
-           "They said 'I never check email for urgent things — "
-           "always Telegram.'",
+    reason="Fictional example: the user said urgent messages go to Telegram.",
 )
 
 # Check how many corrections are queued

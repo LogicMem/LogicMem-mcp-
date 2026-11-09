@@ -12,17 +12,23 @@ Agents that share a workspace can write to a shared pool and read what was writt
 
 **This Python SDK only checks in.** `receive_memory()` and `sync()` call `GET /memory/shared/updates`. They do not open a stream and they do not receive webhooks. Nothing in this package pushes a share to another process.
 
-**A hosted listener is a different path, and it was not re-tested on current production in the audit that edited this page.** Ed Creed reports that his configured Leonard, Linus, and Claude listeners, kept on, communicate and respond to tasks. That is one operator's setup. It is not a latency number and not a statement about every MCP client. An Oct 27, 2026 server snapshot, which is not in this repository, described MCP SSE delivery (`notifications/message`, and raw SSE paths) with **no replay**, and signed webhooks that retry and can be delivered more than once or dead-lettered. Historical samples from Oct 24–25, 2026 were not repeated here, and this page does not publish them as a speed claim.
+**A hosted listener is a different path.** The November 2026 operator report in the README is the real-time claim: configured listeners kept on, in that one always-on setup. It is not a latency number and not a statement about every MCP client. Setting one up is pilot-assisted. Use [the pilot page](https://logicmem.io/design-partner/) or [support@logicmem.io](mailto:support@logicmem.io). This page does not list universal listener steps.
+
+An Oct 27, 2026 **source snapshot** (not in this repository, and not a delivery test) described an MCP SSE path and, separately, signed webhooks. A review note on that SSE description said the SSE path had no replay. That is not a webhook rule and not a test result. Signed webhooks in the same snapshot were described as able to retry or dead-letter. Separate single-sample notes from Oct 24–25, 2026 are not proof of the source snapshot and are not a speed claim.
 
 A share being stored, a listener being notified, and the other agent acting are three events. A notification does not prove receipt or execution. There is no delivery guarantee in this document.
 
-`webhooks/dispatcher.py` in this repo is a local file queue: 5 attempts, then a dead-letter file, and a reconciler that can deliver the same item again because it does not rewrite that file. The Oct 27 snapshot's hosted outbox was described with different limits (12 attempts or 7 days). These are not documented as the same component. Neither was run against production for this audit. Do not point customer traffic at the dispatcher's localhost paths.
+`webhooks/dispatcher.py` in this repo is a local file queue: 5 attempts, then a dead-letter file, and a reconciler that can deliver the same item again because it does not rewrite that file. The Oct 27 source snapshot's hosted outbox was described with different limits (12 attempts or 7 days). These are not the same component. Do not point customer traffic at the dispatcher's localhost paths.
 
 ### Catch-up limit
 
-`sync(limit=50)` is the default. There is no offset parameter in this client. The method returns a list. If the server also sent `total_new`, this client drops it. An Oct 27, 2026 snapshot of hosted catch-up returned newest first, sliced to `limit` (default 50), included `total_new`, and had no cursor. Live parity is unknown.
+`sync()` calls `GET /memory/shared/updates`. The default `limit` is 50. There is no offset. The method returns a list and drops `total_new` if the server sent it, so this client cannot tell you to compare that field.
 
-If you keep a checkpoint: compare a `total_new` you can see with the number of entries you actually kept. When the server returned only a slice, **do not advance the checkpoint** to the newest timestamp in that slice. Raising `limit` is the only knob this client has. It does not page. Record an incomplete catch-up when the slice is shorter than the backlog you still need. This client cannot see `total_new` unless you call the HTTP API yourself and read the raw JSON.
+Ordering and completeness for `/memory/shared/updates` are not known from code in this repository. Do not copy MCP catch-up rules onto this REST path.
+
+If `len(result) == limit`, the backlog may still be larger. Do not advance a checkpoint in that case. A shorter list is **not** proof that every older share was returned. Do not assume the server accepts a higher `limit`. This client does not page.
+
+Newest-first order, a default of 50, `total_new`, and no cursor belong only to the MCP tool `logicframe_memory_sync_check` in the Oct 27, 2026 source snapshot. Live parity of that tool was not re-checked.
 
 ```
 ┌──────────────────┐         ┌──────────────────┐
@@ -40,7 +46,7 @@ If you keep a checkpoint: compare a `total_new` you can see with the number of e
 
 ### Agent ID
 
-Each agent has a label you declare and send as `agent_id`. The SDK does not authenticate it. In an Oct 27, 2026 server snapshot, agent ids were self-declared inside a workspace, and a target id routed a share rather than proving other agents in that workspace cannot read it. Whether that is still true on the deployed server was not re-tested. Cross-workspace access in that snapshot was described as key-bound. A Nov 9, 2026 check returned HTTP 403 for a foreign `client_id` on that check's route. That is dated counterevidence against a general cross-tenant bypass. It is not a full policy, and this audit did not repeat the call. Do not treat a declared agent id or `is_private` as a privacy boundary. `is_private` is forwarded on the write. This client does not enforce it.
+Each agent has a label you declare and send as `agent_id`. The SDK does not authenticate it. In an Oct 27, 2026 source snapshot, agent ids were self-declared inside a workspace, and a target id routed a share rather than proving other agents in that workspace cannot read it. Whether that is still true on the deployed server was not re-checked. Cross-workspace access in that snapshot was described as key-bound. A Nov 9, 2026 morning operator note recorded HTTP 403 for a foreign `client_id` on that check's route. That is dated counterevidence against a general cross-tenant bypass, not a full policy. Do not treat a declared agent id or `is_private` as a privacy boundary. `is_private` is forwarded on the write. This client does not enforce it.
 
 ```python
 import os
@@ -48,7 +54,7 @@ from logicmem.a2a import A2AClient
 
 a2a = A2AClient(
     api_key=os.environ["LOGICMEM_API_KEY"],
-    agent_id="researcher-claude",
+    agent_id="agent-researcher",
 )
 ```
 
@@ -94,13 +100,13 @@ for agent in agents:
 
 ### 3. Share a memory
 
+`category` and `importance` may be arguments or keys inside `memory`. Keys inside `memory` override the arguments. The examples on this site use the arguments. `text` belongs in `memory`.
+
 ```python
 result = a2a.share_memory(
-    target_agent_id="claude-executor",
-    memory={
-        "text": "User needs Q3 report by Friday. High priority.",
-        "category": "task",
-    },
+    target_agent_id="agent-executor",
+    memory={"text": "User needs Q3 report by Friday. High priority."},
+    category="task",
     importance=9,
     client_id="project-x",
 )

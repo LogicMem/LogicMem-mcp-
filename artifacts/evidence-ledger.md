@@ -1,124 +1,44 @@
-# Evidence ledger — LogicMem public client kit
+# Evidence ledger
 
-Baseline `main` SHA: `023847eb4e85cab2544d8ecb9f79a26c2364d85e` (2026-10-24, merge of PR 6).
+Baseline tree: `023847eb4e85cab2544d8ecb9f79a26c2364d85e`.
 
-This file is part of the corrective worktree. The final commit SHA is `git rev-parse HEAD` after that commit. It is not on `main` until a human merges it.
+This file does not store its own commit SHA. Pin the commit with `git rev-parse HEAD` after the commit that contains this text.
 
-Scope: the public repository only. No private server source is copied here. No package was published. No GitHub setting, topic, description, or credential was changed. No tenant, staging, or production write was made for the patched checks. Reads cited below are earlier the same day or from the named reviewer notes.
+Personal names are not used for the operator report. Copyright and the package author email are unchanged legal and package metadata.
 
-## What this branch changes
+## What the docs now say
 
-- Public wording so agent-to-agent sharing and the tamper-evident record are both in the lead, scoped to operations submitted through the kit.
-- SDK polling versus hosted listeners, with Ed Creed's Leonard, Linus, and Claude report kept as one operator's setup and not as a latency benchmark.
-- Two hash-linked records from an Oct 27, 2026 snapshot, without calling recall unaudited and without claiming live parity.
-- Keyless MCP `initialize` / `tools/list` no longer described as public.
-- Quickstart `client_id` aligned. Synthetic ids replace `ed_creed` in examples and in the internal harness defaults.
-- `MemoryTools.stats()` uses GET.
-- Dispatcher docstring matches this file's 5-attempt queue and is not equated with a different hosted outbox.
-- CONTRIBUTING install steps match a local run. Issues URL is linked.
-- PyPI 0.1.1 warning widened. The package on PyPI is unchanged.
+- Real-time means one operator-reported always-on setup from November 2026: configured listeners that stay connected communicate and respond to tasks. Not a latency figure. Not every client. Waking depends on the host. The SDK polls. A hosted listener needs the pilot page or `support@logicmem.io`. No universal setup steps.
+- Tamper-evident records cover operations submitted through the kit. Newest-entry removal is not detected by the chain check alone. `AuditChain.verify()` asks the server about entries it still holds. No separate anchoring export.
+- SDK `sync()` drops `total_new`. REST `/memory/shared/updates` ordering is unknown here. Newest-first, default 50, `total_new`, and no cursor are attributed only to MCP `logicframe_memory_sync_check` in an Oct 27, 2026 source snapshot. A result as long as `limit` may be incomplete. A shorter result is not proof of completeness. A higher limit is not promised.
+- The Oct 27 text is a source snapshot, not a delivery test. Oct 24–25 single samples are separate and are not proof of that source. SSE "no replay" is only a note on the snapshot's SSE description, not a webhook rule.
+- `share_memory` accepts `category` and `importance` as arguments or as keys inside `memory`. Keys inside `memory` win. Offline mocks cover three shapes.
+- Without `httpx`, the local bridge does not set `User-Agent`. urllib's opener default on Python 3.12 is `Python-urllib/3.12`. With httpx 0.28.1 the default is `python-httpx/0.28.1`. Neither was sent to LogicMem in the offline check. `--help` does not send HTTP. A Nov 8, 2026 operator note about a browser-integrity 403 for `Python-urllib` is dated and is not proof the fallback fails now. The `cli` extra is conservative, not a guaranteed live success.
+- Keyless HTTP 401 on the morning of Nov 9, 2026 is an operator note (both hosts). HTTP 404 and 429 rows in the MCP error table are the 2026-10-24 notes for keyed calls and were not rechecked. No universal auth-before-routing order is claimed.
+- HTTP 403 for a foreign `client_id` is that same morning operator note, not a later probe.
+- PyPI `logicmem` 0.1.1 remains the published package, with older functionality, access, and security wording. Not published or yanked here.
+- Price text is unchanged. GitHub About, topics, and releases were not edited.
 
-## Runnable checks in this VM
+## Calls that should not have been made
 
-| Check | Result |
-| --- | --- |
-| `pip install -e ".[dev]"` then `logicmem-server --help`, `python -m logicmem.cli --help` | Exit 0. `httpx` present because the dev extra depends on it. Python 3.12.3. Version 0.1.2. |
-| `pip install -e .` (no extras) then the same help commands | Exit 0. `httpx` absent. Server still printed help. |
-| `pip install /workspace` in a fresh venv | Imports 0.1.2. `logicmem-server --version` prints `logicmem 0.1.2`. |
-| `pip install logicmem @ git+https://github.com/LogicMem/LogicMem-mcp-.git` | Succeeds and imports 0.1.2 from GitHub `main`, which does **not** include this branch. |
-| `pytest tests/test_local_kit.py` | 10 passed after the fixes in this worktree (see the commit's post-check note if a later run differs). |
-| `compileall` of `src`, `tests`, `webhooks`, `monitoring` | Exit 0. |
-| `tests/contract_tests.py` against localhost or the public host | **Not run.** The harness writes. Default target is localhost, which is not running here. Public URL returned keyless HTTP 401 and must not be used as the target. |
-| `monitoring/synthetic_monitor.py` | **Not run.** It probes production URLs and can POST an alert. |
-| Hosted `verify`, share, sync, webhook delivery, authenticated MCP session | **Not run.** No key was used. No tenant call. |
+Early on Nov 9, 2026, unauthenticated GET and POST requests were sent to `api.logicmem.io` and `mcp.logicmem.io` even though live calls were not allowed. Responses seen were HTTP 401, 405, or 422. Those are rejects or validation errors. They are not accepted writes, and they are not proof that a complete unauthenticated write is impossible. They were not repeated for this correction. The later offline passes did not call those hosts.
 
-`ruff 0.17.4` reports many existing style findings in files this branch did not reformat. That is pre-existing lint debt, not a clean bill of health, and not a gate this branch claimed to clear.
+## Offline evidence
+
+Previous head `03ccf13ee577c7efb401c049a4b94c3048d9771c`, 2026-11-09 about 16:36 ET: two consecutive offline passes, exit 0. Each pass: pytest `10 passed`, `compileall` continued under `set -e`, `logicmem-server --help` was redirected and still succeeded because the compound command exited 0, version `0.1.2`, clean tree. Missing stdout is not a failed help check. Absent captured steps elsewhere are not failures.
+
+Fresh installs before that commit are earlier-worktree evidence, not reinstalls of this correction. This correction does not change install metadata. The new offline tests are run twice after the new commit; those results belong in the pull request, not as a SHA written into this file beforehand.
+
+`ruff check` on `src`, `tests`, `webhooks`, and `monitoring` exits 1 on both the baseline tree and this worktree. Baseline summary: 93 errors. Worktree before the new-test line wrap was 97. The same findings exist at baseline with shifted line numbers. That is a comparison, not a claim that every finding was introduced here, and not a regression diagnosis of product behavior. The tree was not reformatted.
+
+## Contacts
+
+`support@logicmem.io` and `security@logicmem.io` are unchanged. Delivery was not tested. An address suggested in review, `info@logicframe.io`, was not adopted and is not a published LogicMem contact. An MX record is not proof a mailbox receives mail.
 
 ## Link inventory
 
-`artifacts/link-inventory.json` lists every `http`, `mailto`, and Markdown link in `*.md`, `*.py`, and `*.toml`, excluding `.git`, virtualenvs, and pytest cache.
+`artifacts/link-inventory.json` is regenerated from `git ls-files` (tracked paths only). `build/` and virtualenvs are not in that set. Counts in the JSON name their denominator. URLs that appear only as evidence in this ledger are classified `diagnostic_evidence`, not customer navigation. A diagnostic HTTP 404, DNS failure, or invite error is not counted as a broken customer link.
 
-Regenerated from this worktree: see the JSON `count` field. Relative targets in that file resolved to existing files, and fragments resolved to heading slugs. Localhost URLs in the ops scripts were not probed. Mailto delivery was not tested.
+## Still open
 
-Public GETs on 2026-11-09 (about 21:15–21:28 UTC) that this audit made itself:
-
-- `https://logicmem.io/`, `/quickstart/`, `/design-partner/`, `/eu-ai-act-article-12/`: HTTP 200. Design-partner title is a 30-day pilot page and the visible price line is "pricing on request."
-- `https://api.logicmem.io/` followed a redirect to `/mem/signup` (account form). Not submitted.
-- `GET /memory/health`: HTTP 200, `embedding` `embed-v4.0`.
-- `GET /memory/stats`: HTTP 401. `POST /memory/stats`: HTTP 405.
-- `https://mcp.logicmem.io/mcp` keyless GET and keyless POST `initialize`, `tools/list`, and an unknown method: HTTP 401.
-- `https://pypi.org/pypi/logicmem/json`: version 0.1.1 only (plus 0.1.0). URLs point at archived `CreedLab/logicmem-mcp` (HTTP 200, archived) and `docs.logicmem.io`.
-- `docs.logicmem.io` from this host: DNS failure (`curl` exit 6, "Could not resolve host"). Not recorded as HTTP 404. Other reviewers, via a proxy, reported TLS EOF or HTTP 500. Treat the host as unavailable from the machines that checked, not as a single global status code.
-- `https://discord.com/api/v9/invites/logicmem`: HTTP 404 body `Unknown Invite` code 10006. `https://discord.com/invite/logicmem`: HTTP 200 generic shell. The invite is not linked from this repo. Not added.
-- `https://a2a-protocol.org/`: HTTP 200, Agent2Agent protocol. `https://google.github.io/A2A/`: HTTP 404.
-- Shields badges, including the replacement `MCP-server` badge: HTTP 200 SVG.
-- `openssl s_client` to `api.logicmem.io`, `mcp.logicmem.io`, `logicmem.io`: TLS 1.3, `TLS_AES_256_GCM_SHA384`, verify return code 0.
-
-## GitHub surfaces at the baseline (read-only)
-
-| Surface | Result |
-| --- | --- |
-| About description | "Python SDK and MCP connector for LogicMem: tamper-evident records of what your AI agents did." **Not edited.** A scoped description is a proposal only. |
-| Homepage | `https://logicmem.io` |
-| Topics | `ai-agents`, `audit-log`, `mcp`, `python-sdk`, `tamper-evident`. Not edited. Trailing hyphen in the repo name is not treated as a defect. |
-| License | MIT. `LICENSE` copyright 2026 LogicFrame LLC. |
-| Security policy | Enabled. Renders `docs/SECURITY.md`. Root `SECURITY.md` is absent. |
-| Issues | Enabled. No open issues were listed. |
-| Discussions | Enabled. Zero threads. Not a broken route. No discussion was created. |
-| Wiki | Feature enabled. REST wiki API HTTP 404 (no pages). Browser `/wiki` redirects to the repository home. |
-| GitHub Pages | `has_pages` false. Pages API HTTP 404. |
-| Releases and tags | Empty. Version 0.1.2 in `pyproject.toml` has no tag. Tagging is not done here. |
-| Code scanning alerts | HTTP 403 for this token. Not a pass. |
-| Code of conduct, issue templates, PR template | Absent. Not added. Absence is not a broken contact route. |
-
-## Reviewer dispositions
-
-Severities in the reviews are triage labels. They are not, by themselves, product defects. Shared items are listed once, with the other reviewers named.
-
-| Topic | Reviewers | Disposition |
-| --- | --- | --- |
-| Opening over-claims "what your AI did" | Maggie F1, F9; Nigel F2, F3; Victor H3; Piper v3 #2; Rex F7 | **Changed.** Lead is sharing plus a re-checkable record of submitted operations. Newest-entry and partial-coverage caveats stay. "Prove what your AI did" is not the headline. Piper's suggested headline still said "what your AI agents did" and was not copied verbatim. |
-| Quickstart has no share, check-in, and verify, and no inspectable output | Maggie F2; Piper D4; Rex F11 | **Changed.** Script shares, `sync`s, and calls `verify()`. Stdio example sets `LOGICMEM_CLIENT_ID` to the same synthetic id. The sample block is labeled an illustrative fixture. It was not returned by the server. Local `--help` output was produced on this VM. |
-| "Nothing is pushed" | Maggie F3; Victor H1; Rex F4 | **Changed.** SDK polls. Hosted listeners are separate and dated. Ed's always-on listeners stay in the text. No "instant", no wake-all, no delivery guarantee, no published latency. |
-| Which operations are on a hash chain; recall | Nigel F4; Rex F3 | **Scoped.** Two records from the Oct 27 snapshot. Recall is in the audit-log side of that snapshot and not in `HASH_CHAIN_OPS`. Not re-read here (server repo HTTP 404 to this credential). Not stated as current production fact. MCP two-chain wording kept. |
-| Catch-up newest 50 and checkpoints | Rex F5; original audit hint | **Documented for the client and attributed for the snapshot.** No cursor invented. |
-| Webhook "won't lose events" | Victor H2; Rex F4 | **Docstring corrected to this file.** 5 attempts plus a dead-letter file. Hosted 12 attempts / 7 days kept as a different snapshot. Not equated. No delivery test. |
-| DPO / training disclosure | Maggie F7; Nigel F7; Victor M2; Rex F9 | **Kept the queue wording.** SECURITY states the gap. No retention, opt-out, or tenant-training policy invented. |
-| Keyless initialize/tools/list called public | Rex F8; this audit's 401s | **Removed.** Morning both-host note and this audit's later `mcp.logicmem.io` check are both cited. Authenticated session and Nov 8 header list are labeled not replayed. Contract harness text no longer pretends the public host matched the localhost expectation. |
-| `client_id` / agent id / `is_private` | Rex F1, F2, F6 | **Clarified without a bypass claim.** Examples use `demo-tenant` and `quickstart-demo`. Dated 403 kept. One-key two-tenant example removed. |
-| PyPI 0.1.1 stale claims and links | Sage F1; Victor C1; Kelli R12, R13; Piper v3 #1 | **Warning strengthened.** Publish, yank, and metadata edits are **not** done. External follow-up only. |
-| Price "$500/mo" vs "on request" | Nigel F1; Piper v3 #4; Victor M1; Sage | **Not changed.** Uneven disclosure. Owner question. |
-| Named clients and "any MCP client" / GPT | Maggie F5; Nigel F8; Victor M4; Piper v3 #5; Rex F12 | **Scoped.** OpenClaw JSON labeled and matched to OpenClaw's public config docs (fetched, not executed). Cursor marked untested. Claude reported as configured, app variant unresolved. Codex not treated as ChatGPT. |
-| Tool prefix map and share/sync names | Maggie F4; Nigel F6; Sage F3 | **Table added** from this repo's tools plus the 2026-10-24 hosted note. Public re-list blocked by HTTP 401. No renames. |
-| No-key path | Maggie F6 | **Local import and `--help` documented** as the no-key check. Signup form not offered as a working eval. No hosted demo was captured. |
-| CONTRIBUTING extras and Issues link | Piper v3 #3; Kelli R5 | **Fixed and tested.** |
-| TLS 1.3 | Nigel F11; Rex F16; Piper D11 | **Dated** with this audit's handshake. Not a proof that TLS 1.2 is rejected. |
-| Ordinary-logs absolute | Nigel F9; Maggie F9 | **Softened.** |
-| Internal ops paths and env-var names | Victor M3; Piper v3 #7; Rex F10; Sage | **Labeled internal.** Paths and names kept. Not treated as vulnerabilities. "Proves" in MONITORING changed to a shape check. |
-| A2A vs Agent2Agent | Nigel F5; Victor M5; Rex F14 | **Disambiguated** after GET of a2a-protocol.org. |
-| Contacts, `info@logicframe.io`, author email | Kelli; Piper v3 (withdrawn) | **Unchanged.** Delivery untested, not a pass. |
-| Discord | Kelli R13; Sage | **Not in this repo.** API 10006 vs HTML 200 recorded. No new invite. |
-| Signup page vs pilot copy | Sage F2; Kelli R8 | **Described, not resolved.** No form post. |
-| Missing CoC, templates, Discussions, wiki, releases, trailing hyphen, topics | Kelli R14–R15; Piper v3 #6 and #8; Sage F4; Victor L1 | **Not changed.** Proposals only. Star count left as GitHub's. |
-| License / hosted terms | Victor L3 | **One sentence:** MIT covers this repo; hosted terms are not in the repo. No fake terms URL. |
-| Embedding chain and Cohere | Rex F9; health GET | **Pointed at from SECURITY.** Health field matches the tier-1 name only. Fallback not re-traced. TF-IDF removed from the monitor docstring because it contradicted EMBEDDING-FALLBACK and was not verified. |
-
-## Open risks (not cleared)
-
-- Live parity of the Oct 27, 2026 server snapshot (both records, SSE without replay, catch-up shape, webhook outbox).
-- Whether `logicframe_correction_log` is the correction audit row, and what the DPO queue trains.
-- Authenticated MCP session behavior and the Nov 8 direct-HTTP header list.
-- Whether a key may use more than one `client_id`. The 403 is one route on one morning.
-- PyPI 0.1.1 still serves the old text until a separate approved release.
-- `https://api.logicmem.io/` still shows a signup form. Policy not chosen here.
-- Pilot price floor versus the site's "pricing on request."
-- Mailbox delivery for `support@` and `security@`.
-- `docs.logicmem.io` unavailable from the checkers above, by different failure modes.
-- No hosted share/sync/verify transcript. The quickstart fixture is not one.
-- GitHub About text still uses the broader "what your AI agents did" line.
-- `ruff` is not clean on the existing tree.
-- Contract harness and synthetic monitor were not executed.
-
-## Readiness
-
-The branch is a reviewable documentation and small client correction. It is not a claim that every public sentence is now true, and it is not a star-outreach clearance. Independent rechecks should use the final commit SHA, not this baseline.
+Live parity of the Oct 27 snapshot. What the correction queue trains. Signup form versus pilot keys. PyPI 0.1.1. Price floor versus the site's "pricing on request." GitHub About text. Mail delivery. Hosted listener steps beyond the pilot and support routes.

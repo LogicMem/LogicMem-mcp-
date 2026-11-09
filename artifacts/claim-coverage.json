@@ -8,7 +8,7 @@
       "sources": ["README.md", "docs/SECURITY.md", "src/logicmem/__init__.py"],
       "original": "prove what your AI did / records of what your AI agents did and relied on",
       "fixed": "Scoped to operations submitted through the kit, with the partial-coverage and newest-entry caveats next to the lead.",
-      "evidence": "Doc text at baseline contradicted itself (README L277 and SECURITY L54). No live verify() call in this audit.",
+      "evidence": "Doc text at baseline contradicted itself (README and SECURITY coverage limits). No hosted verify() call.",
       "status": "corrected_in_worktree"
     },
     {
@@ -23,7 +23,7 @@
       "id": "sdk-poll-vs-listener",
       "sources": ["README.md", "docs/A2A-PROTOCOL.md", "docs/QUICKSTART.md"],
       "original": "A2A-PROTOCOL said nothing is pushed.",
-      "fixed": "SDK sync/receive_memory only poll. Hosted listeners are a separate path: Ed Creed's Leonard/Linus/Claude report, plus an Oct 27 snapshot of SSE without replay and webhook retry. Not re-tested on current production. No latency number published.",
+      "fixed": "SDK sync/receive_memory only poll. Real-time is one anonymous operator-reported always-on setup from November 2026, not a generic product claim. Oct 27 source snapshot is not the Oct 24-25 samples. SSE replay note is not a webhook rule.",
       "evidence": "SDK source has no stream client. Ed report is firsthand setup evidence from the audit request, relayed again in Rex v2 P5. Push code is not in this repo.",
       "status": "corrected_in_worktree"
     },
@@ -48,7 +48,7 @@
       "sources": ["src/logicmem/a2a.py", "docs/A2A-PROTOCOL.md", "docs/SECURITY.md"],
       "original": "is_private docstring said only the target agent can see the memory. Docs said the agent id is unique within a client_id.",
       "fixed": "Caller-supplied label and flag are forwarded. Not described as a privacy proof. Dated HTTP 403 for a foreign client_id (Rex P3, Nov 9 ~8 AM ET) is kept as counterevidence against a general bypass. No bypass claimed or tested.",
-      "evidence": "SDK sends the strings. Isolation was not probed in this audit.",
+      "evidence": "SDK sends the strings. Isolation was not probed in the offline pass.",
       "status": "corrected_in_worktree"
     },
     {
@@ -127,7 +127,7 @@
       "id": "voice-routes",
       "sources": ["docs/EXAMPLES.md", "docs/CONTRACT-TESTS.md"],
       "original": "VAPI example could be read as a native integration. Contract doc listed required voice tools.",
-      "fixed": "Example is an explicit memory.log. Vapi, Bland, and HighLevel are possible routes, not certifications. Willow not claimed. Contract row is name-and-schema presence only.",
+      "fixed": "Example is an explicit fictional memory.log. Vapi, Bland, and HighLevel are possible routes, not certifications. Contract row is name-and-schema presence only.",
       "evidence": "No voice call was placed. Tool presence was not re-listed (keyless tools/list returned 401).",
       "status": "corrected_in_worktree"
     },

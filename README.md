@@ -1,8 +1,10 @@
-# LogicMem: agents share, on a record you can re-check
+# LogicMem: real-time sharing in one reported setup, and a record you can re-check
 
-Agents share a fact or a task through LogicMem, and LogicMem keeps tamper-evident, hash-linked records of operations submitted through this kit. This repository is the open-source Python SDK and local MCP connector. The server that stores and re-checks those records runs in LogicMem's cloud.
+Agents share through LogicMem, and LogicMem keeps a tamper-evident, hash-linked record of operations submitted through this kit. **Real-time**, on this page, means only this: an operator reported in November 2026 that configured listeners, kept on, communicate and respond to tasks. That report was not independently reproduced. It is one always-on setup, not a latency figure, not support for every client, and not proof that an idle host wakes. Waking depends on the host. The Python SDK in this repository does not open that listener. `sync()` and `receive_memory()` poll.
 
-The record is what was submitted under an API key, with the agent id the caller declared. It is not a transcript of everything an agent did. Not every endpoint writes an audit entry. Chain checks run on the server. A check the server describes as intact means it did not find a broken link in the entries it still holds. It does not prove those entries are true or complete, and it does not by itself show that the newest entries were not removed. See [SECURITY.md](docs/SECURITY.md). This is not a compliance certificate.
+A hosted listener is not a set of universal steps in this kit. It needs pilot-assisted configuration: [request a pilot](https://logicmem.io/design-partner/) or write to [support@logicmem.io](mailto:support@logicmem.io). Mail delivery to that address was not tested.
+
+The record is what was submitted under an API key, with the agent id the caller declared. It is not everything an agent did. Not every endpoint writes an audit entry. Chain checks run on the server, on entries the server still holds. A check described as intact does not prove those entries are true or complete, and it does not by itself show that the newest entries were not removed. See [SECURITY.md](docs/SECURITY.md). This is not a compliance certificate.
 
 > The record shows what was submitted through LogicMem, and whether those stored entries still link. It does not show everything an agent did.
 
@@ -38,9 +40,11 @@ These are different events. A notification is not proof the other agent received
 | **Checked in** | `A2AClient.sync()` and `receive_memory()` poll. They do not open a stream. |
 | **Acted on** | Whatever the receiving agent and its host decide to do. This kit does not record that decision. |
 
-**This SDK polls.** `sync()` requests at most `limit` entries (default 50) and has no offset. It returns a list and drops a server `total_new` count if one was sent. Do not advance a checkpoint to the newest timestamp you saw while the list may be only a slice of a larger backlog. An Oct 27, 2026 server snapshot of hosted catch-up returned newest-first, defaulted the slice to 50, included `total_new`, and had no cursor. That snapshot was not re-run against production for this audit. This client does not add a cursor or a maximum.
+**This SDK polls.** `sync()` calls `GET /memory/shared/updates`, requests at most `limit` entries (default 50), and returns a list. It has no offset. If the JSON also has `total_new`, this client drops that field, so you cannot compare it from `sync()` alone. Ordering, a default slice, and whether a cursor exists for this REST path are **not** known from code in this repository. Do not treat a list shorter than `limit` as proof the backlog is finished. If `len(result) == limit`, the backlog may be incomplete: do not advance a checkpoint. Do not assume a higher `limit` is accepted. Those rules are the conservative reading of this client only.
 
-**Hosted listeners are a different path.** Ed Creed reports that his configured Leonard, Linus, and Claude listeners, kept on, communicate and respond to tasks. That is one operator's setup. It is not a latency figure, not a promise that every MCP client does this, and not proof that a notification woke an idle host. An Oct 27, 2026 server snapshot described MCP SSE push with no replay, and signed webhooks that retry and can dead-letter. Those historical tests were not repeated on current production here. Push, when that snapshot's description still applies, is best effort: no delivery guarantee, no SSE replay, and a webhook can be delivered more than once or dead-lettered.
+Newest-first order, a default of 50, a `total_new` count, and no cursor are attributes of the MCP tool `logicframe_memory_sync_check` in an Oct 27, 2026 source snapshot. They are not transferred here onto `GET /memory/shared/updates`.
+
+**Hosted listeners are a different path.** The November 2026 operator report above is the real-time claim: configured listeners kept on, in that one setup. It is not a product-wide latency or compatibility claim. An Oct 27, 2026 **source snapshot** (not a delivery test, and not in this repository) described an MCP SSE path and, separately, signed webhooks that can retry or dead-letter. A review note attached to that SSE description said that SSE path had no replay. That note is not a webhook guarantee and not a test result. Separate single-sample delivery notes from Oct 24–25, 2026 are not proof of the source snapshot, and they are not repeated here as a speed claim. Stream behavior and webhook behavior are different channels. This kit does not document a universal listener setup. Use the pilot or support route above.
 
 The file `webhooks/dispatcher.py` is a local queue in this repo (5 attempts, then a dead-letter file). It is not the hosted webhook service. The Oct 27 snapshot's outbox used different limits (12 attempts or 7 days). Do not treat them as one contract. See [A2A-PROTOCOL.md](docs/A2A-PROTOCOL.md).
 
@@ -52,7 +56,7 @@ The file `webhooks/dispatcher.py` is a local queue in this repo (5 attempts, the
 
 `AuditChain.verify()` sends `GET /memory/audit/verify` and returns the server's JSON. It does not recompute hashes in this process.
 
-An Oct 27, 2026 server snapshot (not in this repository; `LogicMem/logicmem-server` was not readable with this audit's GitHub credential on Nov 9, 2026) kept two hash-linked records:
+An Oct 27, 2026 server snapshot (not in this repository; the server repo was not readable with the Nov 9, 2026 review credential) kept two hash-linked records:
 
 - An audit log that included operational rows such as `RECALL`, and a correction write.
 - A selected-write chain whose operation set was `LOG`, `SHARE`, `BROADCAST`, `SUPERSEDE`, `ARCHIVE`, and `MEMORY_MERGE`. That set did not include `RECALL`.
@@ -71,7 +75,7 @@ The LogicMem server itself (storage, reasoning engine, audit chain) is not in th
 
 **Access:** API keys are issued to pilot teams. Pilots run 30 days, from $500/mo: [logicmem.io/design-partner](https://logicmem.io/design-partner/).
 
-On 2026-11-09 a browser GET of `https://api.logicmem.io/` redirected to `/mem/signup`, which shows an account form. This audit did not submit that form and does not know whether it issues keys for this kit. The access path these docs describe is the pilot page above.
+As of 2026-11-09, a browser open of `https://api.logicmem.io/` redirected to `/mem/signup`, which shows an account form. The form was not submitted. It is not known whether that form issues keys for this kit. The access path these docs describe is the pilot page above.
 
 Code and documentation in this repository are under the MIT license. Using the hosted service needs an API key. This repo does not include a terms-of-service or privacy-policy link for that service.
 
@@ -92,7 +96,7 @@ pip install git+https://github.com/LogicMem/LogicMem-mcp-.git
 pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
 ```
 
-> Install from GitHub as shown. This pull request does not publish to PyPI. On 2026-11-09 the `logicmem` package there was still 0.1.1. That page's description and project URLs are older than this repo: they point at the archived `CreedLab/logicmem-mcp` repository and at `docs.logicmem.io`, and they make functionality, access, and security claims this README does not stand behind (including "immutable", "every operation", encryption and compliance phrases, and a self-serve key path). One sentence there attributes "300K+ GitHub stars" to OpenClaw, not to LogicMem. Do not treat the PyPI page as the current kit. A corrected package would be a separate, approved release.
+> Install from GitHub as shown. As of 2026-11-09 the `logicmem` package on PyPI was still 0.1.1 and had not been replaced. Its description and project URLs are older than this repo: they point at the archived `CreedLab/logicmem-mcp` repository and at `docs.logicmem.io`, and they make functionality, access, and security claims this README does not stand behind (including "immutable", "every operation", encryption and compliance phrases, and a self-serve key path). One sentence there attributes a star count to OpenClaw, not to LogicMem. Do not treat the PyPI page as the current kit. Publishing a corrected package is a separate release, not done from this repository's docs.
 
 ---
 
@@ -108,7 +112,7 @@ Requests over your rate limit return HTTP 429 (`RateLimitError` in the SDK).
 
 ### 2. Use the Python SDK
 
-`LogicMem.log`, `recall`, and `session` default `client_id` to `"default"` when you omit it. Pass the id your key is for. The SDK sends that string; it does not decide which ids the server will accept. A Nov 9, 2026 check got HTTP 403 for a foreign `client_id` on that check's route. That is counterevidence to a general cross-tenant bypass. It is not a full access policy, and this audit did not repeat the call.
+`LogicMem.log`, `recall`, and `session` default `client_id` to `"default"` when you omit it. Pass the id your key is for. The SDK sends that string. It does not decide which ids the server will accept. A Nov 9, 2026 morning operator note recorded HTTP 403 for a foreign `client_id` on that check's route. That is counterevidence to a general cross-tenant bypass, not a full access policy, and not a new probe from the later offline pass.
 
 ```python
 import os
@@ -228,11 +232,11 @@ There is no sample `verify()` body in this README. This audit did not call the h
 
 ## Connect an MCP client
 
-Configured in Ed Creed's own setup, as reported for this audit: Leonard, Linus, and Claude listeners; OpenClaw; Codex (the connection method is unresolved here); and a hosted direct-HTTP agent. That list is not a compatibility matrix. Cursor was not in that evidence. Do not read "GPT" or Codex as ChatGPT app support. This audit did not launch those applications.
+OpenClaw below is a worked example because OpenClaw's own docs use this config shape (read 2026-11-09). A November 2026 operator note also named OpenClaw among configured clients. Cursor was not in that note. A Codex connection was mentioned there with the method unresolved, so it is not documented here as a supported client, and nothing here is ChatGPT app support. These checks did not launch the applications.
 
 ### Option A: hosted URL, OpenClaw config shape
 
-OpenClaw documents remote servers under `mcp.servers` in `~/.openclaw/openclaw.json`, with `transport` `streamable-http` and optional `headers` (OpenClaw docs fetched 2026-11-09). This audit did not run `openclaw`.
+OpenClaw documents remote servers under `mcp.servers` in `~/.openclaw/openclaw.json`, with `transport` `streamable-http` and optional `headers` (OpenClaw docs read 2026-11-09). `openclaw` was not run from this repository.
 
 ```json
 {
@@ -252,11 +256,11 @@ OpenClaw documents remote servers under `mcp.servers` in `~/.openclaw/openclaw.j
 
 `transport: streamable-http` is the client config key. It is not a claim that the hosted server's `protocolVersion` string was re-read. The local bridge answers `initialize` with `2024-11-05`. A keyless hosted `initialize` on 2026-11-09 returned HTTP 401, so the hosted version string was not reconfirmed.
 
-Clients that can set a streamable-HTTP URL and an `Authorization` header use that URL and header in their own settings. This audit did not exercise those clients. Claude Desktop's local config file and Cursor's MCP file use a different shape (`mcpServers`); see Option B for stdio.
+Other clients that can set a streamable-HTTP URL and an `Authorization` header are not certified here. Claude Desktop's local config file and Cursor's MCP file use a different shape (`mcpServers`); see Option B for stdio. Cursor was not part of the November 2026 operator note.
 
 ### Option B: local stdio server
 
-The console script is part of the base package. `logicmem-server --help` works after `pip install -e .` even when `httpx` is absent (the server then uses `urllib`). The `cli` extra installs `httpx`, which the server uses when it is importable. On 2026-11-09, in this audit VM (Python 3.12.3), both `logicmem-server --help` and `python -m logicmem.cli --help` exited 0 after a base install and after `pip install -e ".[dev]"`.
+The console script is part of the base package. `logicmem-server --help` does not send HTTP. It exited 0 on Python 3.12.3 on 2026-11-09 with and without `httpx`. When `httpx` is missing, tool calls use `urllib` and do not set `User-Agent`. Python's urllib then supplies its default, `Python-urllib/<version>` (offline check on 3.12: `Python-urllib/3.12`). With `httpx` installed, the client sends httpx's own default unless you override it (offline check: `python-httpx/0.28.1`). Neither default was sent to LogicMem in that check. A Nov 8, 2026 operator note said a browser-integrity check returned 403 to a `Python-urllib` agent on some paths, and that an exception existed for certain MCP paths. That note was not rechecked and is not proof the fallback fails now. Installing the `cli` extra (httpx) is the conservative choice for hosted calls. It is not a guarantee the edge accepts httpx.
 
 ```bash
 pip install "logicmem[cli] @ git+https://github.com/LogicMem/LogicMem-mcp-.git"
@@ -285,7 +289,7 @@ Stdio clients that use a top-level `mcpServers` object (the shape in Claude Desk
 openclaw mcp list
 ```
 
-OpenClaw's own docs say `mcp list` reads the configured server block and does not connect to the server. A listing is not a live call. This audit did not run the command.
+OpenClaw's own docs say `mcp list` reads the configured server block and does not connect to the server. A listing is not a live call. The command was not run from this repository.
 
 Then ask the agent to store a note with `logicframe_memory_log` (hosted) or `logicmem_memory_log` (local) and recall it, using the same `client_id` you wrote with. Hosted `logicframe_memory_recall`, as documented from a `tools/list` on 2026-10-24, did not list `client_id`. That schema was not re-listed on 2026-11-09.
 
@@ -308,11 +312,9 @@ The Python SDK does not read these; pass `api_key` and `base_url` to `LogicMem(.
 
 **REST API base URL:** `https://api.logicmem.io`
 
-**Authentication observed without a key:** On 2026-11-09, about 8:03–8:10 AM ET, keyless GET of `/sse`, `/mcp/sse`, and `/mcp`, and keyless POST `initialize` and `tools/list`, returned HTTP 401 on both `api.logicmem.io` and `mcp.logicmem.io` (operator health note). Later the same day, about 4:15 PM ET, this audit repeated keyless POST `initialize`, `tools/list`, and an unknown method, plus keyless GET, against `https://mcp.logicmem.io/mcp` only. Those also returned HTTP 401. The POST body said authentication was required and mentioned `Authorization: Bearer lm_<key>` or an OIDC token. The GET challenge was `Bearer realm="logicframe-mcp"`.
+**Keyless requests:** A Nov 9, 2026 morning operator note recorded HTTP 401 for keyless GET of `/sse`, `/mcp/sse`, and `/mcp`, and for keyless POST `initialize` and `tools/list`, on both hosts. That note is about those requests. It is not a map of every later edge or session rule, and it is not an authenticated call. The local stdio server still answers `initialize` and `tools/list` on stdin without a key. The REST call behind a tool still needs one. Error rows that mention HTTP 404 or 429 are from the 2026-10-24 notes for calls that presented a key. They were not rechecked. See [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md).
 
-That is evidence about those keyless requests. It is not a proof that every future edge, transport, or session rule is identical, and it is not a test of an authenticated call. The local stdio server answers `initialize` and `tools/list` on stdin without a key; the REST call it makes afterward still needs one.
-
-**Direct HTTP, from an operator runbook dated Nov 8, 2026 (not replayed in this audit):** send `Authorization: Bearer lm_...`, `Accept: application/json, text/event-stream`, a descriptive `User-Agent`, and `X-Agent-ID`. After `initialize`, send the `Mcp-Session-Id` the server returned. This audit's keyless calls stopped at 401, so no session id was observed. Do not treat a missing session header on a keyless 401 as proof the session header is optional for an authenticated client.
+**Direct HTTP, from an operator runbook dated Nov 8, 2026 (not replayed):** `Authorization: Bearer lm_...`, `Accept: application/json, text/event-stream`, a descriptive `User-Agent`, and `X-Agent-ID`. After `initialize`, send `Mcp-Session-Id` if the server returned one. No authenticated session id was recorded for these docs. A keyless 401 does not prove that header is optional once a key is sent.
 
 The cURL sample in [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md) includes the bearer token. It is not a completed session transcript.
 
@@ -360,7 +362,7 @@ See [MCP-PROTOCOL.md](docs/MCP-PROTOCOL.md) for details.
 
 ## Security
 
-- **In transit:** HTTPS. A handshake from this audit on 2026-11-09 to `api.logicmem.io`, `mcp.logicmem.io`, and `logicmem.io` negotiated TLS 1.3 (`TLS_AES_256_GCM_SHA384`) and the certificate verified (SAN `*.logicmem.io`). That is one client handshake. It does not prove older TLS versions are disabled. Details and the October 2026 note are in [SECURITY.md](docs/SECURITY.md).
+- **In transit:** HTTPS. One client handshake on 2026-11-09 negotiated TLS 1.3. That does not prove older TLS versions are disabled. Details are in [SECURITY.md](docs/SECURITY.md).
 - **Records:** see [Which record](#which-record). Not every endpoint writes an audit entry. Re-check with `logicframe_audit_verify` or `AuditChain.verify()`.
 - **API keys:** sent as a Bearer token; keep them out of code and git.
 - **Corrections:** `log_correction` posts the text you supply. The client describes a DPO training queue. The consumer of that queue is not in this repo.
