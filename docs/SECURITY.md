@@ -2,7 +2,7 @@
 
 > **How LogicMem handles your agent memory data, and what this repo can and cannot tell you.**
 
-This repo contains the client SDK and a local MCP bridge. The LogicMem server runs in LogicMem's cloud and is not in this repo, so server-side details (storage encryption, key management, hosting) are not documented or verifiable here. Ask [security@logicmem.io](mailto:security@logicmem.io) if you need them for a review.
+This repo contains the client SDK and a local MCP bridge. The LogicMem server is not in this repo. A Nov 9, 2026 read of the source on disk for the running memory service is summarized below. That file's timestamp is at or before the process start. The process memory was not compared byte for byte, so this is not a live-memory proof. Ask [security@logicmem.io](mailto:security@logicmem.io) for a review that needs more than this page.
 
 ---
 
@@ -13,6 +13,27 @@ This repo contains the client SDK and a local MCP bridge. The LogicMem server ru
 - The SDK uses `requests`, which validates server certificates by default.
 
 ---
+
+## What the Nov 9, 2026 memory source does
+
+These facts are about the LogicMem memory service customers call. They are not a grade, a certification, or a claim that a separate defense service covers this product.
+
+- **New memory text is encrypted with Fernet** before it is stored. Fernet is AES-128-CBC with HMAC-SHA256. AES-256-GCM in that same file is a decrypt path for older payloads, using HKDF-SHA256. New writes traced from `/memory/log` do not call it.
+- **The encryption key is a file on the server**, mode 600 in the source that creates it. It is not a hardware security module, not a customer-held key, and not a separate key per workspace. End-to-end encryption is not what this path does: the server holds the key.
+- **Writes require a bearer API key.** A missing, unknown, or suspended key is rejected. A normal key that sends a different workspace id is rejected. Operator keys can write another workspace. A declared `agent_id` is still not a second login.
+- **The memory service applies a per-key rate limit.** The default in that source is 1000 requests per minute. Clients can still receive HTTP 429.
+- **The audit log is SHA-256 and hash-linked** (each row includes the previous row's hash). The selected-write chain in that source is still `LOG`, `SHARE`, `BROADCAST`, `SUPERSEDE`, `ARCHIVE`, and `MEMORY_MERGE`. Recall can be on the audit log and off that chain. Verification walks rows the server still holds. It does not, by itself, show that the newest rows were removed.
+- **Configured webhooks from the listener that this memory source imports** are signed with HMAC-SHA256. Headers are `X-LogicMem-Timestamp` and `X-LogicMem-Signature` (`sha256=`). A failed delivery can be retried. Delivery is not exactly once and is not guaranteed. The local `webhooks/dispatcher.py` queue in this kit is a different program.
+
+### Separate defense service
+
+A second service was running on Nov 9, 2026. It is not the memory API this SDK calls.
+
+- Its own store encrypts with AES-256-GCM. The ordinary store call does not pass an entry id as additional authenticated data.
+- A module that derives a per-entry key with HKDF-SHA384 is imported by a key-rotation route, not by that ordinary store.
+- Bearer tokens on that service can be checked with Ed25519. A file header mentions PKCE. The code that was read does not implement a PKCE `code_challenge`.
+- Pattern checks for injection run on that service's memory routes. They were not on the standard LogicMem memory write path.
+- Module names that say compliance, threat intelligence, or CNSA are labels. They are not a SOC 2, CNSA, HIPAA, GDPR, or military-grade certification. Key length alone is not a grade.
 
 ## Authentication
 
@@ -31,7 +52,7 @@ Authorization: Bearer lm_your_api_key
 
 Calls include a `client_id` string you choose. The SDK sends it and does not check it against the API key. This page does not claim that one key may write every `client_id`, and it does not claim the opposite as a fully tested rule.
 
-Use a `client_id` your key is meant to use. A Nov 9, 2026 morning operator note recorded HTTP 403 for a foreign `client_id` on that check's route. That is dated counterevidence against a general cross-tenant bypass. It is not a complete allow-list.
+Use a `client_id` your key is meant to use. The Nov 9, 2026 memory source rejects a normal key that sends a different workspace id. Operator keys can write another workspace. A Nov 9, 2026 morning operator note recorded HTTP 403 for a foreign `client_id` on that check's route. That agrees with the source for a normal key. It is not a proof that every route was tested.
 
 ```python
 # Two writes with one key only if that key is permitted to use both ids.

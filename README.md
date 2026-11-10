@@ -25,7 +25,7 @@ An auditor can ask what an agent submitted, and ordinary logs can be edited with
 Two different things:
 
 1. **Sharing.** An agent can write a memory for other agents that use the same LogicMem workspace. Hearing about that write is a second step, described under [How a share is delivered](#how-a-share-is-delivered).
-2. **A tamper-evident record** of operations the server chooses to log. There are two records in an Oct 27, 2026 server snapshot that is not in this repository; live parity was not re-checked here. See [Which record](#which-record).
+2. **A tamper-evident record** of operations the server chooses to log. A Nov 9, 2026 read of the memory service source still keeps two hash-linked records, described under [Which record](#which-record). New memory text in that source is encrypted with Fernet before storage. See [SECURITY.md](docs/SECURITY.md).
 
 ---
 
@@ -56,12 +56,12 @@ The file `webhooks/dispatcher.py` is a local queue in this repo (5 attempts, the
 
 `AuditChain.verify()` sends `GET /memory/audit/verify` and returns the server's JSON. It does not recompute hashes in this process.
 
-An Oct 27, 2026 server snapshot (not in this repository; the server repo was not readable with the Nov 9, 2026 review credential) kept two hash-linked records:
+A Nov 9, 2026 read of the memory service source on disk (timestamp at or before that process start; the running process memory was not compared byte for byte) still keeps two hash-linked records:
 
-- An audit log that included operational rows such as `RECALL`, and a correction write.
-- A selected-write chain whose operation set was `LOG`, `SHARE`, `BROADCAST`, `SUPERSEDE`, `ARCHIVE`, and `MEMORY_MERGE`. That set did not include `RECALL`.
+- An audit log. Each row's hash is SHA-256 over the row and the previous hash. Operational calls, including recall, can be written here.
+- A selected-write chain whose operation set in that source is `LOG`, `SHARE`, `BROADCAST`, `SUPERSEDE`, `ARCHIVE`, and `MEMORY_MERGE`. That set does not include `RECALL`.
 
-Recall in that snapshot could be on the audit log and off the selected-write chain. Do not read the selected-write list as "recall is unaudited." Whether `logicframe_correction_log` is that correction write, and whether production still matches the snapshot, were not established. A Nov 9, 2026 health read reported both a hash chain and an audit chain as valid; that is a status string, not a map of which operations were included.
+Recall can be on the audit log and off the selected-write chain. Do not read the selected-write list as "recall is unaudited." Whether `logicframe_correction_log` is a given correction row was not established. A health read that reports both chains valid is a status string, not a map of which operations were included.
 
 ---
 
