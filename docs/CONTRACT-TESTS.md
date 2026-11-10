@@ -1,5 +1,7 @@
 # MCP Contract Tests
 
+**Internal operations harness. Not part of customer SDK setup.** Do not point `LOGICMEM_MCP_URL` at `https://mcp.logicmem.io/mcp`. The script writes memories, and on 2026-11-09 keyless `initialize` and `tools/list` on that public URL returned HTTP 401, which does not match the "tools/list is public" check below. This audit did not run the harness.
+
 **Added:** 2026-06-22
 
 ## What They Catch
@@ -15,8 +17,8 @@ catch this drift when you run them.
 |----------|-------|
 | **MCP protocol** | `initialize` handshake, `tools/list` shape, unknown method → 404 |
 | **Memory core** | `memory_log` ↔ `memory_recall` round-trip, `memory_stats` shape |
-| **Voice platforms** | VAPI (9 required tools), Retell (7), Bland (6) — presence + schema validity |
-| **Auth** | `tools/list` is public, `tools/call` requires auth, `X-Agent-ID` works |
+| **Voice tool names** | Vapi (9 names), Retell (7), Bland (6) — the harness checks that those names are listed and that the schema shape is an object. That is not an end-to-end test, not a certification, and not automatic capture of calls or audio. |
+| **Auth** | Against the harness target (default localhost): `tools/list` without a key, `tools/call` without a key expects HTTP 401, and a call with `X-Agent-ID` is attempted. The public hosted URL's keyless `initialize` and `tools/list` returned HTTP 401 on 2026-11-09. Do not read the localhost expectation as the public host's policy. |
 
 ## Running
 

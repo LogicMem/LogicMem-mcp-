@@ -127,8 +127,8 @@ TOOLS = [
     {
         "name": "logicmem_memory_log",
         "description": (
-            "Store a new memory. The agent's memory is permanent and searchable "
-            "across sessions. Be specific — include who, what, when, why."
+            "Store a memory you explicitly record. Be specific: who, what, "
+            "when, why. This tool does not capture a session automatically."
         ),
         "inputSchema": {
             "type": "object",
@@ -158,7 +158,7 @@ TOOLS = [
     },
     {
         "name": "logicmem_memory_session",
-        "description": "Full memory session briefing — recall + sentiment + constraints + intelligence + gaps.",
+        "description": "Ask the server for a session briefing for a client_id. Fields are defined by the server.",
         "inputSchema": {
             "type": "object",
             "properties": {

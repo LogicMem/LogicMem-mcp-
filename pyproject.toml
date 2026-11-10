@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "logicmem"
 version = "0.1.2"
-description = "Python SDK and MCP connector for LogicMem: tamper-evident records of what your AI agents did."
+description = "Python SDK and MCP connector for LogicMem: agent-to-agent sharing, with tamper-evident records of operations sent through this kit."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"

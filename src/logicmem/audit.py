@@ -2,7 +2,8 @@
 Audit Chain Tools
 =================
 Tamper-evident audit trail verification for LogicMem.
-Key memory operations are logged to a cryptographically linked hash chain.
+Some operations are written to hash-linked records kept on the server.
+This client asks the server to re-check the entries it still holds.
 """
 
 from __future__ import annotations
@@ -24,15 +25,17 @@ class AuditChain:
 
     def verify(self) -> dict[str, Any]:
         """
-        Verify the integrity of the entire audit chain.
+        Ask the server to re-check hash links among entries it still holds.
 
-        Asks the server to re-check the hash links in the audit chain, so
-        an edited, deleted or reordered entry shows up as a broken link.
+        A modified, deleted, or reordered past entry that is still in the
+        set the server checks shows up as a broken link. This call does
+        not recompute hashes locally, and it does not detect removal of
+        the newest entries by itself. There is no separate anchoring
+        export in this package.
 
         Returns:
-            dict from the server describing whether the chain is intact.
-            Print it or read fields with ``.get()``; exact field names are
-            set by the server.
+            The server's JSON. Field names are set by the server. Read
+            them with ``.get()``.
         """
         # /memory/audit/verify is a GET endpoint on the server.
         return self._client._get("/memory/audit/verify", {})
@@ -46,8 +49,11 @@ class AuditChain:
         """
         Log a correction (what the agent got wrong and what is right).
 
-        Corrections are stored on the server and queued for its DPO
-        training pipeline.
+        The client POSTs ``original``, ``corrected`` and ``reason`` to
+        ``/memory/correction/log``. These docs describe that as stored
+        and queued for the server's DPO training pipeline. The training
+        job, what text it consumes, tenant separation, retention and
+        any opt-out are not in this repository and were not verified here.
 
         Args:
             original: The incorrect statement or action.

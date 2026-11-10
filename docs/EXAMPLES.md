@@ -1,6 +1,6 @@
 # Examples
 
-> **Working examples for LogicMem features.**
+> **Example code for LogicMem features.** These snippets call the hosted API and need a key. They were not run against the hosted API for this page. The stories are fictional.
 
 ---
 
@@ -33,7 +33,7 @@ memory.log(
     text="The user prefers urgent messages via Telegram, not email.",
     category="preference",
     importance=8,
-    client_id="ed_creed",
+    client_id="demo-tenant",
 )
 
 # Store another preference
@@ -41,14 +41,14 @@ memory.log(
     text="The user is a solo founder. Keep suggestions practical and limited to 2-3 action items.",
     category="preference",
     importance=9,
-    client_id="ed_creed",
+    client_id="demo-tenant",
 )
 
 # Search for all preferences
 prefs = memory.recall(
     query="the user's communication and work preferences",
     limit=10,
-    client_id="ed_creed",
+    client_id="demo-tenant",
 )
 
 for p in prefs:
@@ -68,7 +68,7 @@ result = memory.log(
     category="task",
     importance=9,
     tags=["q3", "proposal", "urgent"],
-    client_id="ed_creed",
+    client_id="demo-tenant",
 )
 print(f"Stored: {result.get('entry_id')}")
 
@@ -76,7 +76,7 @@ print(f"Stored: {result.get('entry_id')}")
 tasks = memory.recall(
     query="Q3 proposal deadline and priority",
     limit=5,
-    client_id="ed_creed",
+    client_id="demo-tenant",
 )
 for t in tasks:
     if t.get("category") == "task":
@@ -108,8 +108,7 @@ memory = LogicMem(api_key=os.environ["LOGICMEM_API_KEY"])
 # Ask a complex question that requires reasoning
 answer = memory.reason(
     question="Should we prioritize the mobile app or web dashboard first?",
-    context="The user is a solo founder with limited engineering bandwidth. "
-            "Current runway is 6 months. Monthly burn is $12k.",
+    context="Example only: a small team with a fixed weekly time budget.",
     mode="deep",  # fast / deep / exhaustive
 )
 
@@ -142,27 +141,27 @@ from logicmem.a2a import A2AClient
 
 researcher_a2a = A2AClient(
     api_key=os.environ["RESEARCHER_API_KEY"],
-    agent_id="researcher-claude",
+    agent_id="agent-researcher",
 )
 
 # Register first
 researcher_a2a.register(
-    name="Claude Researcher",
+    name="Researcher Agent",
     agent_type="agent",
     client_id="project-x",
 )
 
 # When research is done, share findings
 researcher_a2a.share_memory(
-    target_agent_id="executor-claude",
+    target_agent_id="agent-executor",
     memory={
         "text": "Research complete. "
                 "Competitor analysis: 3 players in target segment. "
                 "Recommended positioning: mid-market SMB, "
                 "lead with pricing transparency.",
-        "category": "decision",
-        "importance": 9,
     },
+    category="decision",
+    importance=9,
     client_id="project-x",
 )
 ```
@@ -177,7 +176,7 @@ memory = LogicMem(api_key=os.environ["EXECUTOR_API_KEY"])
 
 executor_a2a = A2AClient(
     api_key=os.environ["EXECUTOR_API_KEY"],
-    agent_id="executor-claude",
+    agent_id="agent-executor",
 )
 
 # Check for new context from the researcher
@@ -230,6 +229,13 @@ print(result)
 
 ## 5. Voice Agent Memory (VAPI)
 
+This block is an explicit `memory.log` of a summary you write. It does not
+record a call, the audio, or a full transcript by itself. Vapi via an
+external MCP client, Bland via tools or webhooks, and HighLevel Voice AI
+via MCP Labs or custom actions are routes a developer might connect. They
+are not end-to-end certifications and they are not native LogicMem
+integrations.
+
 ### Store a Voice Call Summary
 
 ```python
@@ -244,14 +250,14 @@ memory.log(
     importance=8,
     source="voice_call",
     tags=["vapi", "q3", "proposal"],
-    client_id="ed_creed",
+    client_id="demo-tenant",
 )
 
 # Retrieve recent call history
 calls = memory.recall(
     query="the user's voice calls about Q3 proposal",
     limit=5,
-    client_id="ed_creed",
+    client_id="demo-tenant",
 )
 
 for call in calls:
@@ -292,7 +298,7 @@ def start_session(client_id: str):
     return brief
 
 # Run at session start
-start_session("ed_creed")
+start_session("demo-tenant")
 ```
 
 ---
@@ -311,9 +317,7 @@ audit = AuditChain(memory)
 audit.log_correction(
     original="The user prefers email for urgent messages.",
     corrected="The user prefers Telegram for urgent messages, not email.",
-    reason="User explicitly corrected this in the call on 2026-06-10. "
-           "They said 'I never check email for urgent things — "
-           "always Telegram.'",
+    reason="Fictional example: the user said urgent messages go to Telegram.",
 )
 
 # Check how many corrections are queued
@@ -480,7 +484,7 @@ Respond helpfully based on the user's history and the memories above."""
 # Run the agent
 if __name__ == "__main__":
     agent_loop(
-        user_id="ed_creed",
+        user_id="demo-tenant",
         initial_prompt="How's my Q3 proposal coming along?",
     )
 ```

@@ -1,0 +1,1658 @@
+{
+  "baseline_sha": "023847eb4e85cab2544d8ecb9f79a26c2364d85e",
+  "pin": "Use git rev-parse HEAD. This file does not claim to contain its own commit SHA.",
+  "denominator": {
+    "definition": "Occurrences of markdown links, bare http(s) URLs, and mailto links in git-tracked .md .py .toml files. build/ and virtualenvs are not tracked and are omitted.",
+    "tracked_files_with_a_link": 21,
+    "link_occurrences": 154,
+    "customer_doc_occurrences": 113,
+    "code_occurrences": 41,
+    "diagnostic_evidence_occurrences": 0,
+    "broken_customer_link_occurrences": 0,
+    "diagnostic_reference_items": 6,
+    "note": "link_occurrences counts tracked-file link syntax only. diagnostic_references is a separate list, not added into link_occurrences, and not counted as broken customer links."
+  },
+  "classification_note": "diagnostic_references is a separate list, not link rows. Those items are evidence targets. Their historical 401, DNS, or invite results are not broken customer links.",
+  "links": [
+    {
+      "path": "CONTRIBUTING.md",
+      "line": 8,
+      "target": "https://github.com/your-username/LogicMem-mcp-.git",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "line": 10,
+      "target": "docs/CONTRACT-TESTS.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "line": 31,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-/issues",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 5,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "README.md",
+      "line": 5,
+      "target": "mailto:support@logicmem.io",
+      "kind": "mailto",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Syntax only. Delivery untested. MX is not receipt proof."
+    },
+    {
+      "path": "README.md",
+      "line": 7,
+      "target": "docs/SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 11,
+      "target": "https://img.shields.io/badge/Python-3.11+-blue",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 11,
+      "target": "https://www.python.org/downloads/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 12,
+      "target": "https://img.shields.io/badge/License-MIT-green.svg",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 13,
+      "target": "https://img.shields.io/badge/MCP-server-blueviolet",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 13,
+      "target": "https://modelcontextprotocol.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200 after redirect. Not re-fetched."
+    },
+    {
+      "path": "README.md",
+      "line": 27,
+      "target": "#how-a-share-is-delivered",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 28,
+      "target": "#which-record",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 49,
+      "target": "docs/A2A-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 51,
+      "target": "https://a2a-protocol.org/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "README.md",
+      "line": 70,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "README.md",
+      "line": 72,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "README.md",
+      "line": 76,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "README.md",
+      "line": 78,
+      "target": "https://api.logicmem.io/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Same as the root URL."
+    },
+    {
+      "path": "README.md",
+      "line": 93,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-.git",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 96,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-.git",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 105,
+      "target": "docs/QUICKSTART.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 109,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "README.md",
+      "line": 209,
+      "target": "docs/SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 209,
+      "target": "docs/QUICKSTART.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 247,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "README.md",
+      "line": 266,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-.git",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 302,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "README.md",
+      "line": 303,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "README.md",
+      "line": 311,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "README.md",
+      "line": 313,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "README.md",
+      "line": 315,
+      "target": "docs/MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 317,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "README.md",
+      "line": 321,
+      "target": "docs/MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 361,
+      "target": "docs/MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 367,
+      "target": "docs/SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 368,
+      "target": "#which-record",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 372,
+      "target": "docs/SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 380,
+      "target": "docs/QUICKSTART.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 381,
+      "target": "docs/MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 382,
+      "target": "docs/A2A-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 383,
+      "target": "docs/SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 384,
+      "target": "docs/EXAMPLES.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 385,
+      "target": "docs/EMBEDDING-FALLBACK.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 386,
+      "target": "docs/INDEX.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 390,
+      "target": "https://logicmem.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "README.md",
+      "line": 391,
+      "target": "https://logicmem.io/quickstart/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "README.md",
+      "line": 392,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "README.md",
+      "line": 393,
+      "target": "https://logicmem.io/eu-ai-act-article-12/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "README.md",
+      "line": 394,
+      "target": "mailto:support@logicmem.io",
+      "kind": "mailto",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Syntax only. Delivery untested. MX is not receipt proof."
+    },
+    {
+      "path": "README.md",
+      "line": 402,
+      "target": "CONTRIBUTING.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 406,
+      "target": "CHANGELOG.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "README.md",
+      "line": 410,
+      "target": "LICENSE",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/A2A-PROTOCOL.md",
+      "line": 5,
+      "target": "https://a2a-protocol.org/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "docs/A2A-PROTOCOL.md",
+      "line": 15,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "docs/A2A-PROTOCOL.md",
+      "line": 15,
+      "target": "mailto:support@logicmem.io",
+      "kind": "mailto",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Syntax only. Delivery untested. MX is not receipt proof."
+    },
+    {
+      "path": "docs/A2A-PROTOCOL.md",
+      "line": 200,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "docs/CONTRACT-TESTS.md",
+      "line": 3,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "docs/CONTRACT-TESTS.md",
+      "line": 30,
+      "target": "http://localhost:8423/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/CONTRACT-TESTS.md",
+      "line": 31,
+      "target": "http://localhost:8421",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EMBEDDING-FALLBACK.md",
+      "line": 25,
+      "target": "https://api.logicmem.io/memory/health",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized GET returned 200 JSON. Not re-fetched. Not a customer navigation link when it appears only as evidence."
+    },
+    {
+      "path": "docs/EMBEDDING-FALLBACK.md",
+      "line": 27,
+      "target": "https://status.cohere.com/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 9,
+      "target": "#1-basic-memory-operations",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 10,
+      "target": "#2-reasoning-engine",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 11,
+      "target": "#3-a2a-multi-agent-sharing",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 12,
+      "target": "#4-audit-chain-verification",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 13,
+      "target": "#5-voice-agent-memory-vapi",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 14,
+      "target": "#6-session-context-briefing",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 15,
+      "target": "#7-dpo-correction-pipeline",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 16,
+      "target": "#8-error-handling",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 17,
+      "target": "#9-full-agent-loop-example",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": true,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 129,
+      "target": "MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/EXAMPLES.md",
+      "line": 129,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 9,
+      "target": "QUICKSTART.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 10,
+      "target": "MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 11,
+      "target": "A2A-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 12,
+      "target": "SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 13,
+      "target": "EXAMPLES.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 14,
+      "target": "EMBEDDING-FALLBACK.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 15,
+      "target": "CONTRACT-TESTS.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 16,
+      "target": "MONITORING.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 17,
+      "target": "../CONTRIBUTING.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 21,
+      "target": "QUICKSTART.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 23,
+      "target": "EXAMPLES.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/INDEX.md",
+      "line": 25,
+      "target": "MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/MCP-PROTOCOL.md",
+      "line": 9,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "docs/MCP-PROTOCOL.md",
+      "line": 31,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "docs/MCP-PROTOCOL.md",
+      "line": 36,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "docs/MCP-PROTOCOL.md",
+      "line": 166,
+      "target": "SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/MONITORING.md",
+      "line": 16,
+      "target": "https://api.logicmem.io/memory/health",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized GET returned 200 JSON. Not re-fetched. Not a customer navigation link when it appears only as evidence."
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 11,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 11,
+      "target": "https://api.logicmem.io/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Same as the root URL."
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 20,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-.git",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 115,
+      "target": "SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 119,
+      "target": "MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 119,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 143,
+      "target": "MCP-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 144,
+      "target": "A2A-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 145,
+      "target": "EXAMPLES.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/QUICKSTART.md",
+      "line": 146,
+      "target": "SECURITY.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 5,
+      "target": "mailto:security@logicmem.io",
+      "kind": "mailto",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Syntax only. Delivery untested. MX is not receipt proof."
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 11,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 11,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 23,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 25,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 42,
+      "target": "A2A-PROTOCOL.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 66,
+      "target": "EMBEDDING-FALLBACK.md",
+      "kind": "relative",
+      "role": "customer_doc",
+      "destination_status": "exists",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "line": 72,
+      "target": "https://logicmem.io/eu-ai-act-article-12/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 63,
+      "target": "http://localhost:8421/memory/health",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 70,
+      "target": "http://localhost:8421/memory/stats",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 78,
+      "target": "http://localhost:8421/memory/audit/verify",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 86,
+      "target": "http://localhost:6333/collections",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 93,
+      "target": "http://localhost:6333/collections/logicframe_memory_v2",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 100,
+      "target": "http://localhost:6333/readyz",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 111,
+      "target": "https://api.logicmem.io/memory/health",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized GET returned 200 JSON. Not re-fetched. Not a customer navigation link when it appears only as evidence."
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 118,
+      "target": "https://api.logicmem.io/memory/stats",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 131,
+      "target": "http://localhost:8423/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 139,
+      "target": "http://localhost:8423/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 147,
+      "target": "http://localhost:8423/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 161,
+      "target": "http://localhost:8423/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 187,
+      "target": "http://localhost:8421/memory/recall",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "monitoring/synthetic_monitor.py",
+      "line": 389,
+      "target": "http://localhost:8421/memory/log",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "pyproject.toml",
+      "line": 45,
+      "target": "https://logicmem.io",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "pyproject.toml",
+      "line": 46,
+      "target": "https://logicmem.io/quickstart/",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier GET 200. Not re-fetched."
+    },
+    {
+      "path": "pyproject.toml",
+      "line": 47,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "pyproject.toml",
+      "line": 48,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-/blob/main/CHANGELOG.md",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "pyproject.toml",
+      "line": 49,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-/issues",
+      "kind": "absolute",
+      "role": "customer_doc",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "src/logicmem/__init__.py",
+      "line": 19,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/__init__.py",
+      "line": 23,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/__init__.py",
+      "line": 25,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "src/logicmem/a2a.py",
+      "line": 31,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/a2a.py",
+      "line": 38,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/cli/__init__.py",
+      "line": 16,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/cli/__init__.py",
+      "line": 21,
+      "target": "https://github.com/LogicMem/LogicMem-mcp-.git",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "src/logicmem/cli/__init__.py",
+      "line": 55,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/cli/__init__.py",
+      "line": 436,
+      "target": "https://logicmem.io/design-partner/",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Earlier 2026-11-09 GET 200. Not re-fetched this pass."
+    },
+    {
+      "path": "src/logicmem/cli/__init__.py",
+      "line": 439,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 34,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 46,
+      "target": "https://api.logicmem.io",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Unauthorized probe saw a redirect to a signup form. Not re-fetched. Not proof signup works."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 242,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 248,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 251,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 277,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 282,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 302,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/client.py",
+      "line": 307,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/reasoning.py",
+      "line": 78,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/reasoning.py",
+      "line": 83,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/reasoning.py",
+      "line": 94,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "src/logicmem/reasoning.py",
+      "line": 99,
+      "target": "https://mcp.logicmem.io/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false,
+      "note": "Keyless 401 was an unauthorized probe and a morning operator note. Not re-fetched. Not a broken docs link."
+    },
+    {
+      "path": "tests/contract_tests.py",
+      "line": 52,
+      "target": "http://localhost:8423/mcp",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "tests/contract_tests.py",
+      "line": 53,
+      "target": "http://localhost:8421",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "tests/test_local_kit.py",
+      "line": 262,
+      "target": "http://127.0.0.1",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "not_rechecked_this_pass",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    },
+    {
+      "path": "webhooks/dispatcher.py",
+      "line": 314,
+      "target": "http://localhost:8421/memory/log",
+      "kind": "absolute",
+      "role": "code",
+      "destination_status": "localhost_not_a_customer_link",
+      "fragment_ok": null,
+      "counts_as_broken_customer_link": false
+    }
+  ],
+  "diagnostic_references": {
+    "definition": "Hosts and addresses discussed in artifacts/evidence-ledger.md. Not a second customer-link denominator. Historical results are not rechecked in this pass and are not broken customer-link counts.",
+    "items": [
+      {
+        "target": "https://api.logicmem.io",
+        "class": "diagnostic_evidence",
+        "historical": "Unauthorized unauthenticated GET/POST. Rejects 401/405/422 or a signup-page redirect. Not proof of an accepted write. Not rechecked."
+      },
+      {
+        "target": "https://mcp.logicmem.io/mcp",
+        "class": "diagnostic_evidence",
+        "historical": "Unauthorized keyless calls returned 401. A separate Nov 9 morning operator note also recorded keyless 401. Not rechecked."
+      },
+      {
+        "target": "https://pypi.org/project/logicmem/",
+        "class": "diagnostic_evidence",
+        "historical": "Earlier JSON read showed version 0.1.1. External. Not rechecked. Not yanked."
+      },
+      {
+        "target": "https://docs.logicmem.io",
+        "class": "diagnostic_evidence",
+        "historical": "Unavailable from checkers by DNS failure, TLS EOF, or HTTP 500 depending on the machine. Not recorded as a global HTTP 404. Not a link in the customer docs."
+      },
+      {
+        "target": "https://discord.com/api/v9/invites/logicmem",
+        "class": "diagnostic_evidence",
+        "historical": "Earlier API body Unknown Invite 10006. HTML invite page was HTTP 200. Not linked from customer docs. Not a broken customer link."
+      },
+      {
+        "target": "info@logicframe.io",
+        "class": "not_a_published_contact",
+        "historical": "Suggested in review and not adopted. Not a mailto in the product docs. An MX record would not prove receipt."
+      }
+    ]
+  }
+}

@@ -68,9 +68,13 @@ class MemoryTools:
         """
         Get memory system statistics.
 
-        Returns total entries, category breakdown, and storage usage.
+        Returns the JSON from ``GET /memory/stats``. Field names are set
+        by the server. This client does not compute the statistics itself.
         """
-        return self._client._post("/memory/stats", {})
+        # The public server rejected POST /memory/stats with 405 on
+        # 2026-11-09 (unauthenticated). GET is the method the local
+        # bridge already uses.
+        return self._client._get("/memory/stats")
 
     def health(self) -> dict[str, Any]:
         """
